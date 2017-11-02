@@ -1,0 +1,27 @@
+<form action="/xero/invoice/add" method="POST">
+    <div class="form-group">
+      <label for="first name">Account Holder Name:</label>
+      <input type="text" class="form-control" name="accname" placeholder="Enter Account Holder Name" value="{{this.name}}">
+    </div>
+    <div class="form-group">
+      <label for="first name">App name</label>
+      <input type="text" class="form-control" name="appname" placeholder="Enter App Name" value="{{this.app}}">
+    </div>
+     <div class="form-group">
+      <label for="name">Name:</label>
+      <input type="text" class="form-control" id="name" name="name" placeholder="Enter Name" value="{{this.cname}}">
+    </div>
+    <div class="form-group">
+      <label for="first name">Description:</label>
+      <input type="text" class="form-control" id="description" name="description" placeholder="Enter Description">
+    </div>
+    <div class="form-group">
+      <label for="last name">Quantity:</label>
+      <input type="text" class="form-control" id="quantity" name="quantity" placeholder="Enter Quantity">
+    </div>
+    <div class="form-group">
+      <label for="last name">UnitAmount:</label>
+      <input type="text" class="form-control" id="unitAmount" name="unitAmount" placeholder="Enter UnitAmount">
+    </div>
+    <button type="submit" class="btn btn-primary waves-effect waves-light">Submit</button>
+  </form>

@@ -1,0 +1,55 @@
+{{#if invoice}}
+       <h3> All Invoices </h3>
+    <div class = "row">
+        <div class="col-md-6">
+            <table class="table table-bordered table-striped table-collapsed">
+                <thead>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Total Amount</th>
+                </thead>
+                <tbody>
+                    {{#each invoice.invoicexero}}
+                        <tr>
+                            <td>
+                                {{this._obj.InvoiceID}}
+                            </td>
+                            <td>
+                                {{this._obj.Contact.Name}}
+                            </td>
+                            <td>
+                                {{this._obj.Total}}
+                            </td>
+                        </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-md-6">
+            <table class="table table-bordered table-striped table-collapsed">
+                <thead>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Total Amount</th>
+
+                </thead>
+                <tbody>
+                    {{#each invoice.invoiceqb}}
+                        <tr>
+
+                            <td>
+                                {{this.Id}}
+                            </td>
+                            <td>
+                                {{this.CustomerRef.name}}
+                            </td>
+                            <td>
+                                {{this.TotalAmt}}
+                            </td>
+                        </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+{{/if}}

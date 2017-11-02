@@ -1,0 +1,48 @@
+<script>
+function myFunction() {
+    if($('#amount').val() > 0){
+      return true
+    }
+    else{
+      return false
+    }
+}
+</script>
+
+<form action="/xero/paymentviagateway" method="post" onsubmit="return myFunction()">
+     <div class="form-group" style="display:none">
+      <input type="text" class="form-control" id="id" name="id" value="{{id}}">
+    </div>
+    <div class="form-group">
+      <label for="Name">Name:</label>
+      <input type="text" class="form-control" id="name" name="name" value="{{name}}" readonly>
+    </div>
+    <div class="form-group">
+      <label for="amount">Amount:</label>
+      <input type="text" class="form-control" id="amount" name="amount" placeholder="Enter Amount">
+    </div>
+    <div class="form-group">
+      <select class="form-control" name="gateway">
+              <option name="" value="0">Select Gateway</option>
+              <option name="Stripe" value="Stripe">Stripe</option>
+              <option name="AuthorizeDotNet" value="AuthorizeDotNet">Authorize DotNet</option>
+              <option name="PayPal" value="PayPal">PayPal</option>
+        </select>
+    </div>
+    <div class="form-group">
+      <label for="first name">Credit Card Information</label>
+      <select class="form-control" name="cardtype" style="margin-bottom: 15px">
+              <option name="" value="0">Select Card Type</option>
+              <option name="Visa" value="Visa">Visa</option>
+              <option name="MasterCard" value="MasterCard">MasterCard</option>
+              <option name="RuPay" value="RuPay">RuPay</option>
+              <option name="Maestro" value="Maestro">Maestro</option>
+              <option name="American Express" value="American Express">American Express</option>
+        </select>
+      <input type="text" class="form-control" style="margin-bottom: 15px" id="cardnumber" name="cardnumber" placeholder="Enter Card Number">
+      <input type="text" class="form-control" style="margin-bottom: 15px" id="expire_month" name="expire_month" placeholder="Enter Expire Month">
+      <input type="text" class="form-control" style="margin-bottom: 15px" id="expire_year" name="expire_year" placeholder="Enter Expire Year">
+      <input type="text" class="form-control" style="margin-bottom: 15px" id="cvc" name="cvc" placeholder="Enter CVC">
+    </div>
+    <button type="submit" class="btn btn-primary waves-effect waves-light">Submit</button>
+  </form>

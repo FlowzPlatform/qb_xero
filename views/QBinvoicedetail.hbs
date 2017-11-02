@@ -1,0 +1,101 @@
+<style type="text/css">
+    ul#pagin {
+    width: 100%;
+    display: inline-block;
+    text-align: center;
+    }
+
+    ul#pagin li {
+    float: none !important;
+    margin: 3px !important;
+    display: inline-block;
+}
+</style>
+<script type="text/javascript">
+    function codeAddress(){
+
+    var pageSize = 10;
+    var pageCount =  $(".line-content").length / pageSize;
+    for(var i = 0 ; i<pageCount;i++) {
+        $("#pagin").append('<li> <a href="#">'+(i+1)+'</a></li>');
+    }
+    $("#pagin li").first().find("a").addClass("current")
+    showPage = function(page) {
+        $(".line-content").hide();
+
+        $(".line-content").each(function(n) {
+            if (n >= pageSize * (page - 1) && n < pageSize * page)
+            $(this).show();
+        });
+    }
+    showPage(1);
+    $("#pagin li a").click(function() {
+        $("#pagin li a").removeClass("current");
+
+        $(this).addClass("current");
+        showPage(parseInt($(this).text()))
+});
+
+    }
+    window.onload = codeAddress
+</script>
+
+{{#if err}}
+    <p>Error occurred: {{err}}</p>
+{{/if}}
+
+
+{{#if  inv}}
+    <h3> List Of Invoices </h3>
+
+    <table class="table table-bordered table-striped table-collapsed">
+        <thead>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Generated Date</th>
+            <th>Due Date</th>
+            <th>Total Amount</th>
+            <th>Due Amount</th>
+            <th>Amount Paid</th>
+            <th></th>
+        </thead>
+        <tbody>
+            {{#each inv}}
+                <tr class="line-content">
+                    <td>
+                        {{this.Id}}
+                    </td>
+                    <td>
+                        {{this.CustomerRef.name}}
+                    </td>
+                    <td>
+                        {{this.TxnDate}}
+                    </td>
+                    <td>
+                        {{this.DueDate}}
+                    </td>
+                    <td>
+                        {{this.TotalAmt}}
+                    </td>
+                    <td>
+                        {{this.Balance}}
+                    </td>
+                    <td>
+                        {{subtract this.TotalAmt this.Balance}}
+                    </td>
+                    <td>
+                        <form action="/qb/payment/{{this.Id}}/{{this.CustomerRef.name}}/{{this.CustomerRef.value}}" method="GET"><input type="hidden" name="_method" value="put"><button class="btn btn-primary">Make Payment</button>
+                        </form>
+                    </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <ul id="pagin">
+        <p class="pull-right" style="color:#1bbae1">Total={{inv.data.length}}</p>
+    </ul>
+
+{{else}}
+
+    <h3>Not able to fetch data
+{{/if}}

@@ -1,0 +1,36 @@
+{
+  "clientId": "",
+  "clientSecret": "",
+  "redirectUri": "http://localhost:3000/qb/callback",
+  "configurationEndpoint": "https://developer.api.intuit.com/.well-known/openid_sandbox_configuration/",
+  "api_uri": "https://sandbox-quickbooks.api.intuit.com/v3/company/",
+  "credentials": {
+
+    "Krishna" : {
+
+      "My Demo company": [ {
+        "refresh_token" : "",
+        "client_id" : "",
+        "client_secret" : "",
+        "realmId" : ""
+      } ]
+    },
+
+    "Dweep" : {
+
+      "Test": [ {
+        "refresh_token" : "",
+        "client_id" : "",
+        "client_secret" : "",
+        "realmId" : ""
+      } ],
+
+      "Demo": [ {
+        "refresh_token" : "",
+        "client_id" : "",
+        "client_secret" : "",
+        "realmId" : ""
+      } ]
+    }
+  }
+}

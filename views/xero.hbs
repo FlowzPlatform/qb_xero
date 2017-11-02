@@ -1,0 +1,421 @@
+<style type="text/css">
+    ul#pagin {
+    width: 100%;
+    display: inline-block;
+    text-align: center;
+    }
+
+    ul#pagin li {
+    float: none !important;
+    margin: 3px !important;
+    display: inline-block;
+}
+</style>
+
+<script type="text/javascript">
+    function codeAddress(){
+
+    var pageSize = 10;
+    var pageCount =  $(".line-content").length / pageSize;
+    for(var i = 0 ; i<pageCount;i++) {
+        $("#pagin").append('<li> <a href="#">'+(i+1)+'</a></li>');
+    }
+    $("#pagin li").first().find("a").addClass("current")
+    showPage = function(page) {
+        $(".line-content").hide();
+
+        $(".line-content").each(function(n) {
+            if (n >= pageSize * (page - 1) && n < pageSize * page)
+            $(this).show();
+        });
+    }
+    showPage(1);
+    $("#pagin li a").click(function() {
+        $("#pagin li a").removeClass("current");
+
+        $(this).addClass("current");
+        showPage(parseInt($(this).text()))
+      });
+
+    }
+    window.onload = codeAddress
+</script>
+
+
+{{#if app }}
+    <h3>Welcome to <strong>Xero</strong></h3>
+
+{{else if org.Name }}
+    <h4>Successfully connected to <strong>{{org.Name}}</strong></h4>
+
+{{else if cnt}}
+    <div class="col-sm-10">
+	     <h3> List of Contacts </h3>
+    </div>
+    <div class="col-sm-2" style="margin-top:15px">
+	     <a href="/xero/contacts/new"><button type="button" class="btn btn-primary">Add Contact</button></a>
+    </div>
+
+    <table class="table table-bordered table-striped table-collapsed" id="example">
+        <thead>
+          <th>Account Holder Name</th>
+          <th>App Name</th>
+          <th>Contact Id</th>
+	        <th>Contact Name</th>
+        </thead>
+        <tbody>
+            {{#each cnt}}
+                <tr class="line-content">
+                  <td>
+                      {{this.name}}
+                  </td>
+                  <td>
+                      {{this.app}}
+                  </td>
+                  <td>
+                    {{this.data.ContactID}}
+                  </td>
+                  <td>
+                      <a href="/xero/contact/{{this.data.Name}}?name={{this.name}}&app={{this.app}}">{{this.data.Name}}
+                  </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <ul id="pagin">
+        <p class="pull-right" style="color:#1bbae1">Total={{cnt.length}}</p>
+    </ul>
+
+{{else if contact}}
+    <div class="col-sm-10">
+	   <h3> Contact Detail </h3>
+    </div>
+    <!-- <div class="col-sm-2" style="margin-top:15px">
+	   <a href="/xero/contacts/new"><button type="button" class="btn btn-primary">Add Contact</button></a>
+    </div> -->
+
+    <table class="table table-bordered table-striped table-collapsed" id="example">
+        <thead>
+          <th>App Name</th>
+          <th>Contact Id</th>
+	        <th>Name</th>
+          <th>Address</th>
+          <th>Phone Number</th>
+          <th>EmailAddress</th>
+          <th></th>
+          <th></th>
+        </thead>
+        <tbody>
+            {{#each contact}}
+                <tr class="line-content">
+                  <td>
+                      {{this.app}}
+                  </td>
+                  <td>
+                      {{this.data.ContactID}}
+                  </td>
+                  <td>
+                      {{this.data.Name}}
+                  </td>
+                  <td>
+                      {{this.data.Addresses.[0]._obj.AddressLine1}}  {{this.data.Addresses.[0]._obj.AddressLine2}}  {{this.data.Addresses.[0]._obj.City}}
+                  </td>
+                  <td>
+                      {{this.data.Phones.[0]._obj.PhoneNumber}}
+                  </td>
+                  <td>
+                    {{this.data.EmailAddress}}
+                  </td>
+                  <td>
+                      <a href="/xero/invoice/name/{{this.data.Name}}?name={{this.name}}&app={{this.app}}"><button type="button" class="btn btn-primary">Get List of Invoice</button></a>
+                  </td>
+                  <td>
+                    <a href="/xero/invoice/new?name={{this.name}}&app={{this.app}}&cname={{this.data.Name}}"><button type="button" class="btn btn-primary">Add New Invoice</button></a>
+                  </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <ul id="pagin">
+        <p class="pull-right" style="color:#1bbae1">Total={{contact.length}}</p>
+    </ul>
+
+{{else if invoice}}
+    <h3> Invoices </h3>
+
+    <table class="table table-bordered table-striped table-collapsed">
+        <thead>
+            <th>Account Name</th>
+            <th>App</th>
+            <th>Invoice Id</th>
+            <th>Name</th>
+            <th>Total Amount</th>
+            <th>Invoice Status</th>
+
+        </thead>
+        <tbody>
+            {{#each invoice}}
+                <tr class="line-content">
+                    <td>
+                        {{this.name}}
+                    </td>
+                    <td>
+                        {{this.app}}
+                    </td>
+                    <td>
+                        <a href = "/xero/invoice/id/{{this.data.InvoiceID}}?name={{this.name}}&app={{this.app}}">{{this.data.InvoiceID}}</a>
+                    </td>
+                    <td>
+                        {{this.data.Contact.Name}}
+                    </td>
+                    <td>
+                        {{this.data.Total}}
+                    </td>
+                    <td>
+                      {{this.data.Status}}
+                    </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <ul id="pagin">
+        <p class="pull-right" style="color:#1bbae1">Total={{invoice.length}}</p>
+    </ul>
+
+{{else if filter}}
+    <h3> Invoices </h3>
+
+    <table class="table table-bordered table-striped table-collapsed">
+        <thead>
+            <th>Account Name</th>
+            <th>App</th>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Total Amount</th>
+            <th>Amount Due</th>
+
+        </thead>
+        <tbody>
+            {{#each filter}}
+                <tr class="line-content">
+                    <td>
+                        {{this.name}}
+                    </td>
+                    <td>
+                        {{this.app}}
+                    </td>
+                    <td>
+                        <a href = "/xero/app/invoice/id/{{this.data.InvoiceID}}?name={{this.name}}&app={{this.app}}">{{this.data.InvoiceID}}</a>
+                    </td>
+                    <td>
+                        {{this.data.Contact.Name}}
+                    </td>
+                    <td>
+                        {{this.data.Date}}
+                    </td>
+                    <td>
+                        {{this.data.Total}}
+                    </td>
+                    <td>
+                        {{this.data.AmountDue}}
+                    </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <ul id="pagin">
+        <p class="pull-right" style="color:#1bbae1">Total={{filter.length}}</p>
+    </ul>
+
+{{else if invoicedetail}}
+    <h3> Invoice Details </h3>
+    <table class="table table-bordered table-striped table-collapsed">
+        <thead>
+            <th>Invoice Id</th>
+            <th>Name</th>
+            <th>Email Address</th>
+            <th>Contact Number</th>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Amount Paid</th>
+            <th>Amount Due</th>
+            <th>Total Amount</th>
+            <th></th>
+            <th></th>
+        </thead>
+        <tbody>
+            {{#each invoicedetail}}
+                <tr class="line-content">
+                    <td>
+                        {{this.data.InvoiceID}}
+                    </td>
+                    <td>
+                        {{this.data.Contact.Name}}
+                    </td>
+                    <td>
+                      {{this.data.Contact.EmailAddress}}
+                    </td>
+                    <td>
+                        {{this.data.Contact.Phones.[0].[0].PhoneNumber}} {{this.data.Contact.Phones.[0].[1].PhoneNumber}} {{this.data.Contact.Phones.[0].[2].PhoneNumber}} {{this.data.Contact.Phones.[0].[3].PhoneNumber}}
+                    </td>
+                    <td>
+                        {{this.data.Date}}
+                    </td>
+                    <td>
+                        {{this.data.LineItems.[0].Description}}
+                    </td>
+                    <td>
+                        {{this.data.AmountPaid}}
+                    </td>
+                    <td>
+                        {{this.data.AmountDue}}
+                    </td>
+                    <td>
+                        {{this.data.Total}}
+                    </td>
+                    <td>
+                        <form action="/xero/payment/{{this.data.InvoiceID}}/{{this.data.Contact.Name}}" method="GET"><input type="hidden" name="_method" value="put"><button class="btn btn-primary" style="margin-bottom: 5px;">Make Payment</button></form>
+                    </td>
+                    <td>
+                        <a href="/xero/paymentdetail/{{this.data.InvoiceID}}?name={{this.name}}&app={{this.app}}"><button class="btn btn-primary">Get Payment Detail</button></a>
+                    </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <ul id="pagin">
+        <p class="pull-right" style="color:#1bbae1">Total={{invoicedetail.length}}</p>
+    </ul>
+
+{{else if payment}}
+    <h3> List Of Invoices </h3>
+
+    <table class="table table-bordered table-striped table-collapsed">
+        <thead>
+            <th>Name</th>
+            <th>Invoice Id</th>
+            <th>Payment Id</th>
+            <th>Date</th>
+            <th>Amount Paid</th>
+        </thead>
+        <tbody>
+            {{#each payment}}
+                <tr class="line-content">
+                    <td>
+                      {{this.name}}
+                    </td>
+                    <td>
+                      {{this.invoiceid}}
+                    </td>
+                    <td>
+                        {{this.data.PaymentID}}
+                    </td>
+                    <td>
+                        {{this.data.Date}}
+                    </td>
+                    <td>
+                        {{this.data._obj.Amount}}
+                    </td>
+                </tr>
+            {{/each}}
+
+        </tbody>
+    </table>
+    <ul id="pagin">
+        <p class="pull-right" style="color:#1bbae1">Total={{payment.length}}</p>
+    </ul>
+
+{{else if listpayment}}
+    <h3> List Of Invoices </h3>
+
+    <table class="table table-bordered table-striped table-collapsed">
+        <thead>
+            <th>Name</th>
+            <th>Invoice Id</th>
+            <th>Payment Id</th>
+            <th>Date</th>
+            <th>Amount Paid</th>
+        </thead>
+        <tbody>
+            {{#each listpayment}}
+                <tr class="line-content">
+                    <td>
+                      {{this.data._obj.Invoice.Contact.Name}}
+                    </td>
+                    <td>
+                      {{this.data._obj.Invoice.InvoiceID}}
+                    </td>
+                    <td>
+                        {{this.data.PaymentID}}
+                    </td>
+                    <td>
+                        {{this.data.Date}}
+                    </td>
+                    <td>
+                        {{this.data.Amount}}
+                    </td>
+                </tr>
+            {{/each}}
+
+        </tbody>
+    </table>
+    <ul id="pagin">
+        <p class="pull-right" style="color:#1bbae1">Total={{listpayment.length}}</p>
+    </ul>
+
+{{else if listall}}
+    <h3> List</h3>
+
+    <table class="table table-bordered table-striped table-collapsed">
+        <thead>
+            <th>Account Holder Name</th>
+            <th>App</th>
+            <th>Type</th>
+            <th>Customer Name</th>
+            <th>Id</th>
+            <th>Date</th>
+            <th>Amount</th>
+        </thead>
+        <tbody>
+            {{#each listall}}
+                <tr class="line-content">
+                    <td>
+                      {{this.name}}
+                    </td>
+                    <td>
+                      {{this.app}}
+                    </td>
+                    <td>
+                      {{this.type}}
+                    </td>
+                    <td>
+                      {{this.data._obj.Invoice.Contact.Name}} {{this.data._obj.Contact.Name}}
+                    </td>
+                    <td>
+                      {{this.data._obj.InvoiceID}} {{this.data.PaymentID}}
+                    </td>
+                    <td>
+                        {{this.data.Date}}
+                    </td>
+                    <td>
+                        {{this.data.Amount}} {{this.data.Total}}
+                    </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <ul id="pagin">
+        <p class="pull-right" style="color:#1bbae1">Total={{listall.length}}</p>
+    </ul>
+
+{{else if err}}
+    <h3><b>Error occurred:</b> {{err}}</h3>
+
+{{else if pdf}}
+    <h3>PDF is generated</h3>
+
+{{else}}
+
+    <h3>No Data found</h3>
+{{/if}}

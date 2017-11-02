@@ -1,0 +1,30 @@
+
+{
+  "credentials": {
+
+    "Dweep" : {
+     "Test Application" : {
+        "userAgent" : "",
+        "consumerKey": "",
+        "consumerSecret": "",
+        "privateKeyPath": ""
+      },
+
+     "Demo Application" : {
+        "userAgent" : "",
+        "consumerKey": "",
+        "consumerSecret": "",
+        "privateKeyPath": ""
+      }
+    },
+
+   "Krishna" : {
+     "Private App Test" : {
+       "userAgent" : "",
+       "consumerKey": "",
+       "consumerSecret": "",
+       "privateKeyPath": ""
+     }
+   }
+  }
+}

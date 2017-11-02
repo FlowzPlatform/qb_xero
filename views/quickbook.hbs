@@ -1,0 +1,429 @@
+<style type="text/css">
+    ul#pagin {
+    width: 100%;
+    display: inline-block;
+    text-align: center;
+    }
+
+    ul#pagin li {
+    float: none !important;
+    margin: 3px !important;
+    display: inline-block;
+}
+</style>
+
+<script type="text/javascript">
+    function codeAddress(){
+
+    var pageSize = 10;
+    var pageCount =  $(".line-content").length / pageSize;
+    for(var i = 0 ; i<pageCount;i++) {
+        $("#pagin").append('<li> <a href="#">'+(i+1)+'</a></li>');
+    }
+    $("#pagin li").first().find("a").addClass("current")
+    showPage = function(page) {
+        $(".line-content").hide();
+
+        $(".line-content").each(function(n) {
+            if (n >= pageSize * (page - 1) && n < pageSize * page)
+            $(this).show();
+        });
+    }
+    showPage(1);
+    $("#pagin li a").click(function() {
+        $("#pagin li a").removeClass("current");
+
+        $(this).addClass("current");
+        showPage(parseInt($(this).text()))
+      });
+    }
+    window.onload = codeAddress
+</script>
+
+{{#if err}}
+    <h3><b>Error occurred:</b>{{err}}</h3>
+
+{{else if error}}
+    <h3>Error occurred:{{error}}</h3>
+
+{{else if app}}
+    <h3>Welcome to <strong>QuickBook</strong>....</h3>
+
+{{else if customers}}
+    <div class="col-sm-10">
+       <h3> List Of Customers </h3>
+    </div>
+
+    <div class="col-sm-2" style="margin-top:15px">
+       <a href="/qb/customer/new"><button type="button" class="btn btn-primary">Add Customer</button></a>
+    </div>
+
+    <table class="table table-bordered table-striped table-collapsed">
+        <thead>
+            <th>Account Holder Name</th>
+            <th>App Name</th>
+            <th>Customer Id</th>
+            <th>Customer Name</th>
+            <!-- <th>Company Name</th> -->
+        </thead>
+        <tbody>
+            {{#each customers}}
+                <tr class="line-content">
+                    <td>
+                        {{this.name}}
+                    </td>
+                    <td>
+                        {{this.app}}
+                    </td>
+                    <td>
+                        {{this.data.Id}}
+                    </td>
+                    <td>
+                        <a href="/qb/customer/name/{{this.data.DisplayName}}?name={{this.name}}&app={{this.app}}">{{this.data.DisplayName}}</a>
+                    </td>
+                    <!-- <td>
+                        {{this.data.CompanyName}}
+                    </td> -->
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <ul id="pagin">
+        <p class="pull-right" style="color:#1bbae1">Total={{customers.length}}</p>
+    </ul>
+
+{{else if customer}}
+    <div class="col-sm-10">
+       <h3> Customer Detail </h3>
+    </div>
+
+    <table class="table table-bordered table-striped table-collapsed">
+        <thead>
+            <th>App Name</th>
+            <th>Customer Id</th>
+            <th>Customer Name</th>
+            <th>Billing Address</th>
+            <th>Shipping Address</th>
+            <th>Phone no</th>
+            <th>Email Address</th>
+            <th></th>
+            <th></th>
+        </thead>
+        <tbody>
+            {{#each customer}}
+                <tr class="line-content">
+                    <td>
+                        {{this.app}}
+                    </td>
+                    <td>
+                        {{this.data.Id}}
+                    </td>
+                    <td>
+                        {{this.data.DisplayName}}
+                    </td>
+                    <td>
+                        {{this.data.BillAddr.Line1}} {{this.data.BillAddr.City}} {{this.data.BillAddr.PostalCode}}
+                    </td>
+                    <td>
+                        {{this.data.ShipAddr.Line1}} {{this.data.ShipAddr.City}} {{this.data.ShipAddr.PostalCode}}
+                    </td>
+                    <td>
+                        {{this.data.PrimaryPhone.FreeFormNumber}}
+                    </td>
+                    <td>
+                        {{this.data.PrimaryEmailAddr.Address}}
+                    </td>
+                    <td>
+                      <a href="/qb/invoice/name/{{this.data.DisplayName}}?name={{this.name}}&app={{this.app}}"><button type="button" class="btn btn-primary">Get List of Invoice</button></a>
+                    </td>
+                    <td>
+                      <a href="/qb/invoice/new?name={{this.name}}&app={{this.app}}&cname={{this.data.DisplayName}}"><button type="button" class="btn btn-primary">Add New Invoice</button></a>
+                    </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <ul id="pagin">
+        <p class="pull-right" style="color:#1bbae1">Total={{customer.length}}</p>
+    </ul>
+
+{{else if  invoice}}
+    <h3> List Of Invoices </h3>
+
+    <table class="table table-bordered table-striped table-collapsed">
+        <thead>
+            <th>App</th>
+            <th>Invoice Id</th>
+            <th>Name</th>
+            <th>Total Amount</th>
+            <th>Invoice Status</th>
+        </thead>
+        <tbody>
+            {{#each invoice}}
+                <tr class="line-content">
+                    <td>
+                        {{this.app}}
+                    </td>
+                    <td>
+                        <a href="/qb/invoice/id/{{this.data.Id}}?name={{this.name}}&app={{this.app}}">{{this.data.Id}}</a>
+                    </td>
+                    <td>
+                        {{this.data.CustomerRef.name}}
+                    </td>
+                    <td>
+                        {{this.data.TotalAmt}}
+                    </td>
+                    <td>
+                      {{this.status}}
+                    </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <ul id="pagin">
+        <p class="pull-right" style="color:#1bbae1">Total={{invoice.length}}</p>
+    </ul>
+
+{{else if  invoiceDetail}}
+    <h3> List Of Invoices </h3>
+
+    <table class="table table-bordered table-striped table-collapsed">
+        <thead>
+            <th>App</th>
+            <th>Invoice Id</th>
+            <th>Name</th>
+            <th>Billing Address</th>
+            <th>EmailAddress</th>
+            <th>Generated Date</th>
+            <th>Due Date</th>
+            <th>Due Amount</th>
+            <th>Total Amount</th>
+            <th></th>
+        </thead>
+        <tbody>
+            {{#each invoiceDetail}}
+                    <tr class="line-content">
+                        <td>
+                            {{this.app}}
+                        </td>
+                        <td>
+                            {{this.data.Id}}
+                        </td>
+                        <td>
+                            {{this.data.CustomerRef.name}}
+                        </td>
+                        <td>
+                            {{this.data.BillAddr.Line1}}
+                            {{this.data.BillAddr.City}}
+                            {{this.data.BillAddr.Country}}
+                            {{this.data.BillAddr.PostalCode}}
+                        </td>
+                        <td>
+                            {{this.data.BillEmail.Address}} {{this.data.PrimaryEmailAddr.Address}}
+                        </td>
+                        <td>
+                            {{this.data.TxnDate}}
+                        </td>
+                        <td>
+                            {{this.data.DueDate}}
+                        </td>
+                        <td>
+                          {{this.data.Balance}}
+                        </td>
+                        <td>
+                            {{this.data.TotalAmt}}
+                        </td>
+
+                        <td>
+                            <form action="/qb/payment/{{this.data.Id}}/{{this.data.CustomerRef.name}}/{{this.data.CustomerRef.value}}" method="GET"><input type="hidden" name="_method" value="put"><button class="btn btn-primary" style="margin-bottom: 5px;">Make Payment</button>
+                            </form>
+                            <a href="/qb/paymentdetail/{{this.data.Id}}?name={{this.name}}&app={{this.app}}"><button class="btn btn-primary" style="margin-bottom: 5px;">Get Payment Detail</button></a>
+                          <a href="/qb/invoice/send/{{this.data.Id}}?name={{this.name}}&app={{this.app}}"><button class="btn btn-primary" style="margin-bottom: 5px;">Send As Email</button></a>
+                        </td>
+                    </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <ul id="pagin">
+        <p class="pull-right" style="color:#1bbae1">Total={{invoiceDetail.length}}</p>
+    </ul>
+
+{{else if  filter}}
+    <h3> List Of Invoices </h3>
+
+    <table class="table table-bordered table-striped table-collapsed">
+        <thead>
+            <th>Account Holder Name</th>
+            <th>App</th>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Generated Date</th>
+            <th>Total Amount</th>
+            <th>Due Amount</th>
+        </thead>
+        <tbody>
+            {{#each filter}}
+                    <tr class="line-content">
+                        <td>
+                            {{this.name}}
+                        </td>
+                        <td>
+                            {{this.app}}
+                        </td>
+                        <td>
+                            <a href="/qb/invoice/invoiceid/{{this.data.Id}}?name={{this.name}}&app={{this.app}}">{{this.data.Id}}</a>
+                        </td>
+                        <td>
+                            {{this.data.CustomerRef.name}}
+                        </td>
+                        <td>
+                            {{this.data.TxnDate}}
+                        </td>
+                        <td>
+                            {{this.data.TotalAmt}}
+                        </td>
+                        <td>
+                            {{this.data.Balance}}
+                        </td>
+                    </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <ul id="pagin">
+        <p class="pull-right" style="color:#1bbae1">Total={{filter.length}}</p>
+    </ul>
+
+{{else if  payment}}
+    <h3> List Of Invoices </h3>
+
+    <table class="table table-bordered table-striped table-collapsed">
+        <thead>
+            <th>Name</th>
+            <th>Invoice Id</th>
+            <th>Payment Id</th>
+            <th>Date</th>
+            <th>Amount Paid</th>
+        </thead>
+        <tbody>
+            {{#each payment}}
+                    <tr class="line-content">
+                      <td>
+                        {{this.data.CustomerRef.name}}
+                      </td>
+                      <td>
+                        {{this.data.Line.[0].LinkedTxn.[0].TxnId}}
+                      </td>
+                      <td>
+                          {{this.data.Id}}
+                      </td>
+                      <td>
+                          {{this.data.TxnDate}}
+                      </td>
+                      <td>
+                          {{this.data.TotalAmt}}
+                      </td>
+                    </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <ul id="pagin">
+        <p class="pull-right" style="color:#1bbae1">Total={{payment.length}}</p>
+    </ul>
+
+{{else if refund}}
+    <h3>List of Refund</h3>
+
+    <table class="table table-bordered table-striped table-collapsed">
+        <thead>
+            <th>Account Holder Name</th>
+            <th>App</th>
+            <th>Customer Name</th>
+            <th>Refund Id</th>
+            <th>Description</th>
+            <th>Refund Amount</th>
+            <th>Date</th>
+        </thead>
+        <tbody>
+            {{#each refund}}
+                    <tr class="line-content">
+                      <td>
+                        {{this.name}}
+                      </td>
+                      <td>
+                        {{this.app}}
+                      </td>
+                      <td>
+                        {{this.data.CustomerRef.name}}
+                      </td>
+                      <td>
+                        {{this.data.Id}}
+                      </td>
+                      <td>
+                        {{this.data.Line.[0].Description}}
+                      </td>
+                      <td>
+                        {{this.data.TotalAmt}}
+                      </td>
+                      <td>
+                          {{this.data.TxnDate}}
+                      </td>
+                    </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <ul id="pagin">
+        <p class="pull-right" style="color:#1bbae1">Total={{refund.length}}</p>
+    </ul>
+
+{{else if listall}}
+    <h3></h3>
+    <table class="table table-bordered table-striped table-collapsed">
+        <thead>
+            <th>Account Holder Name</th>
+            <th>App</th>
+            <th>Type</th>
+            <th>Customer Name</th>
+            <th>Id</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Amount</th>
+        </thead>
+        <tbody>
+            {{#each listall}}
+                    <tr class="line-content">
+                      <td>
+                        {{this.name}}
+                      </td>
+                      <td>
+                        {{this.app}}
+                      </td>
+                      <td>
+                        {{this.type}}
+                      </td>
+                      <td>
+                        {{this.data.CustomerRef.name}}
+                      </td>
+                      <td>
+                        {{this.data.Id}}
+                      </td>
+                      <td>
+                        {{this.data.Line.[0].Description}}
+                      </td>
+                      <td>
+                        {{this.data.TxnDate}}
+                      </td>
+                      <td>
+                        {{this.data.TotalAmt}}
+                      </td>
+                    </tr>
+            {{/each}}
+
+        </tbody>
+    </table>
+    <ul id="pagin">
+        <p class="pull-right" style="color:#1bbae1">Total={{listall.length}}</p>
+    </ul>
+
+{{else}}
+    <h3>No Data Found</h3>
+{{/if}}

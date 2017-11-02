@@ -1,0 +1,106 @@
+{{#if err}}
+    <p>Error occurred: {{err}}</p>
+{{/if}}
+
+{{#if invoice}}
+       <h3> Invoices </h3>
+
+
+    <table class="table table-bordered table-striped table-collapsed">
+        <thead>
+            <th>Id</th>
+            <th>Name</th>
+            {{!-- <th>Date</th>
+            <th>Amount Paid</th>
+            <th>Amount Due</th> --}}
+            <th>Total Amount</th>
+            {{!-- <th></th> --}}
+        </thead>
+        <tbody>
+            {{#each invoice}}
+                <tr>
+                    <td>
+                        <a href = "/xero/invoice/id/{{this.InvoiceID}}">{{this.InvoiceID}}
+                    </td>
+                    <td>
+                        {{this.Contact.Name}}
+                    </td>
+                    {{!-- <td>
+                        {{this.Date}}
+                    </td>
+                    <td>
+                        {{this.AmountPaid}}
+                    </td>
+                    <td>
+                        {{this.AmountDue}}
+                    </td> --}}
+                    <td>
+                        {{this.Total}}
+                    </td>
+                    {{!-- <td>
+                        <form action="/xero/payment/{{this.InvoiceID}}" method="GET"><input type="hidden" name="_method" value="put"><button class="btn btn-primary">Make Payment</button></form>
+                    </td> --}}
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+
+{{else if invoicebyid}}
+       <h3> Invoice Details </h3>
+
+
+    <table class="table table-bordered table-striped table-collapsed">
+        <thead>
+            <th>Account Name</th>
+            <th>App</th>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Amount Paid</th>
+            <th>Amount Due</th>
+            <th>Total Amount</th>
+            <th></th>
+        </thead>
+        <tbody>
+            {{#each invoicebyid}}
+                <tr>
+                    <td>
+                        {{this.name}}
+                    </td>
+                    <td>
+                        {{this.app}}
+                    </td>
+                    <td>
+                        {{this.data.InvoiceID}}
+                    </td>
+                    <td>
+                        {{this.data.Contact.Name}}
+                    </td>
+                    <td>
+                        {{this.data.Date}}
+                    </td>
+                    <td>
+                        {{this.data.LineItems.[0].Description}}
+                    </td>
+                    <td>
+                        {{this.data.AmountPaid}}
+                    </td>
+                    <td>
+                        {{this.data.AmountDue}}
+                    </td>
+                    <td>
+                        {{this.data.Total}}
+                    </td>
+                    <td>
+                        <form action="/xero/payment/{{this.data.InvoiceID}}" method="GET"><input type="hidden" name="_method" value="put"><button class="btn btn-primary">Make Payment</button></form>
+                    </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+
+{{else}}
+
+    <h3>Not able to fetch data
+{{/if}}

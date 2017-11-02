@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Xero Node.js Sample App</title>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  {{!-- <link rel="stylesheet" type="text/css" href="style.css"> --}}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script>
+    if(window.opener) {
+      window.opener.location.href = '/qb/connected'
+      window.close()
+    }
+  </script>
+  <style>
+  .form-control {
+     width: 25%;
+   }
+  </style>
+  <style type="text/css">
+      ul#pagin {
+      width: 100%;
+      display: inline-block;
+      text-align: center;
+      }
+
+      ul#pagin li {
+      float: none !important;
+      margin: 3px !important;
+      display: inline-block;
+  }
+  </style>
+
+  <script type="text/javascript">
+      function codeAddress(){
+
+      var pageSize = 10;
+      var pageCount =  $(".line-content").length / pageSize;
+      for(var i = 0 ; i<pageCount;i++) {
+          $("#pagin").append('<li> <a href="#">'+(i+1)+'</a></li>');
+      }
+      $("#pagin li").first().find("a").addClass("current")
+      showPage = function(page) {
+          $(".line-content").hide();
+
+          $(".line-content").each(function(n) {
+              if (n >= pageSize * (page - 1) && n < pageSize * page)
+              $(this).show();
+          });
+      }
+      showPage(1);
+      $("#pagin li a").click(function() {
+          $("#pagin li a").removeClass("current");
+
+          $(this).addClass("current");
+          showPage(parseInt($(this).text()))
+        });
+      }
+      window.onload = codeAddress
+  </script>
+</head>
+  <body>
+
+  	<nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Node.js Xero-QuickBook Application</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar" style="background-color:rgb(245,245,245);margin-top:51px;position:fixed;height:100%">
+          <ul id="accounting" class="nav nav-sidebar ">
+            <li class=""><strong>Xero</strong></li>
+            <li class="active"><a href="/xero/contacts">List Contacts</a></li>
+            <li class=""><a href="/xero/invoice">List Invoices</a></li>
+            <li class=""><a href="/xero/invoice/new">Add Invoices</a></li>
+
+            <li class=""><strong>QuickBook</strong></li>
+            {{!-- <li class=""><a href="/qb/api_call">CompanyInfo</a></li> --}}
+            <li class=""><a href="/qb/customers">List Contacts</a></li>
+            <li class=""><a href="/qb/invoice">List Invoices</a></li>
+            <li class=""><a href="/qb/invoice/new">Add Invoice</a></li>
+            {{!-- <li class=""><a href="/qb/api_call/postpayment">Create Payment</a></li> --}}
+            {{!-- <li class=""><a href="/qb/api_call/postcustomers">Create Customers</a></li> --}}
+          </ul>
+        </div>
+      <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2" style="margin-top:51px">
+        {{{body}}}
+      </div>
+      </div>
+    </div>
+  </body>
+</html>
