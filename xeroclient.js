@@ -4,8 +4,17 @@ const exphbs = require('express-handlebars'),
 
 var express = require('express');
 var xerofun = require('./xerofunction');
-
 var router = express.Router();
+
+//To convert mjml to html
+var fs = require('fs')
+const { compile } = require('handlebars');
+const { mjml2html } = require('mjml');
+var _ = require('lodash');
+
+//To send email
+var nodemailer = require('nodemailer');
+var htmlToText = require('html-to-text');
 
 var arrcontact = [];
 var arrinvoice = [];
@@ -77,12 +86,12 @@ router.get('/contacts',async (req, res) => {
         res.render('xero',{err:'Invalid Account Name'})
       }
 			for(item in app) {
-          console.log("##############",item);
-          config1 = app[item];
-          arr = await xerofun.getContactDetail(req.query.name, item, config1)
-          arrcontact.push(arr);
-		   }
-	   }
+        // console.log("##############",item);
+        config1 = app[item];
+        arr = await xerofun.getContactDetail(req.query.name, item, config1)
+        arrcontact.push(arr);
+		  }
+	  }
   }
 	else {
 		var apps = config.credentials;
@@ -104,12 +113,12 @@ router.get('/contacts',async (req, res) => {
     res.render('xero',{err:arrcontact[0].err})
   }
   else {
-    console.log("else arrcontact@@@@@@@@@@@@@@@@@@@@@@@@@@");
     arrcontact.forEach(function(result,i) {
       result.forEach(function(item, inx) {
         data.push(item)
       })
     })
+    console.log("arrcontact@@@@@@@@@@@@@@@@@@@@@@@@@@",data[1].data);
     // console.log("###########Customer data#######",data[0].data);
     // console.log("###########Customer data#######",data[0].data.Addresses['0'].tracking._instance);
     // console.log("###########Customer status#######",data[0].data.ContactStatus);
@@ -310,6 +319,7 @@ router.get('/invoice/id/:id',async (req, res) => {
 		if (req.query.app != undefined) {
       config1 = checkNameAndApp(res,req.query.name,req.query.app)
 			arr = await xerofun.getListInvoiceById(req.query.name, req.query.app, id, config1);
+      arr[0].data._obj.LineItems = _.filter(arr[0].data._obj.LineItems, (items, key)=> { return key != '_index' })
 			arrinvoice.push(arr);
 		}
 		else {
@@ -320,6 +330,7 @@ router.get('/invoice/id/:id',async (req, res) => {
 			for(item in app) {
               config1 = app[item];
 	            arr = await xerofun.getListInvoiceById(req.query.name, item, id, config1);
+              arr[0].data._obj.LineItems = _.filter(arr[0].data._obj.LineItems, (items, key)=> { return key != '_index' })
 	            arrinvoice.push(arr);
 	        }
 		}
@@ -333,6 +344,7 @@ router.get('/invoice/id/:id',async (req, res) => {
           configdata = config.credentials[uname];
           config1 = configdata[item];
           arr = await xerofun.getListInvoiceById(uname, item, id, config1);
+          arr[0].data._obj.LineItems = _.filter(arr[0].data._obj.LineItems, (items, key)=> { return key != '_index' })
           arrinvoice.push(arr);
       }
 		}
@@ -351,11 +363,117 @@ router.get('/invoice/id/:id',async (req, res) => {
   			data.push(item)
   		})
   	})
-    // console.log("Inside invoice by id",data[0].data.Contact.EmailAddress);
-    // console.log("Inside invoice by id",data[0].data.Contact.Phones);
+    console.log("#########data.contacts",data[0].data.Contact.Addresses[0]);
+    console.log("#########data lineitems",data[0].data.LineItems);
+    console.log("&&&&&&&&&&&Inside invoice by id",data);
     // console.log("###############################");
     res.render('xero', {invoicedetail: data})
   }
+})
+
+//Order confirmation
+router.get('/invoice/confirmOrder', async (req,res) => {
+  console.log("1");
+  config1 = checkNameAndApp(res,req.query.name,req.query.app)
+  arr = await xerofun.getListInvoiceById(req.query.name, req.query.app, req.query.id, config1);
+  console.log("@@@@@@@@@@@@@",arr[0].data._obj);
+  arr[0].data._obj.LineItems = _.filter(arr[0].data._obj.LineItems, (items, key)=> { return key != '_index' })
+
+  // arrinvoice = [];
+  // arrinvoice.push(arr);
+  // console.log("2");
+  // data = [];
+  // arrinvoice.forEach(function(result,i){
+  //   // console.log('result', result)
+  //   result.forEach(function(item, inx){
+  //     data.push(item)
+  //   })
+  // })
+
+  // console.log("#######",arr[0].data.LineItems);
+  // console.log("##########data",arr);
+
+  // var MjmlTemplate = require('./Mjml_Template/template1.txt');
+  var MjmlTemplate = await fs.readFileSync('./Mjml_Template/template1.txt')
+  // console.log("%%%%%%%%%%mjml template",MjmlTemplate);
+  const template = compile("'" + MjmlTemplate + "'");
+
+  var context = {
+    invoice : arr
+  }
+  //
+  const mjml = template(context);
+  const html = mjml2html(mjml);
+
+  var mail = await sendMail(html.html)
+
+  // console.log("#############",mjml);
+  // console.log("%%%%%%%%%%%",html);
+  res.send(html.html);
+})
+
+let sendMail = async function(data) {
+  var transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // use SSL
+    auth: {
+        user: 'abc@gmail.com',
+        pass: 'xxxx'
+    }
+  });
+
+  var mailOptions = {
+      from: 'abc@gmail.com', // sender address (who sends)
+      to: 'xyz@gmail.com', // list of receivers (who receives)
+      subject: 'Hello', // Subject line
+      html: data,
+      // text: text1,
+      //text:text1,
+  };
+
+  // send mail with defined transport object
+  transporter.sendMail(mailOptions, function(error, info){
+      if(error) {
+          return console.log(error);
+      }
+      console.log('Message sent: ');
+      return info;
+  });
+}
+
+router.get('/invoice/mail', async (req,res) => {
+  var text1 = htmlToText.fromString('<h1>Hello World</h1>');
+  console.log(text1);
+  //console.log(data);
+  var transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // use SSL
+    auth: {
+        user: 'abc@gmail.com',
+        pass: 'xxxx'
+    }
+  });
+
+  var mailOptions = {
+      from: 'abc@gmail.com', // sender address (who sends)
+      to: 'xyz@gmail.com', // list of receivers (who receives)
+      subject: 'Hello', // Subject line
+      //html: 'text',
+      text: text1,
+      //text:text1,
+  };
+
+  // send mail with defined transport object
+  transporter.sendMail(mailOptions, function(error, info){
+      if(error){
+          return console.log(error);
+      }
+      // console.log(data);
+      res.json({data:info})
+      console.log('Message sent: ');
+  });
 })
 
 //Redirect to form for creating new invoice
@@ -628,7 +746,7 @@ router.get('/invoice/filter', async function(req,res) {
 		if (req.query.name != undefined) {
 			if (req.query.app != undefined) {
         config1 = checkNameAndApp(res,req.query.name,req.query.app);
-				arr = await await xerofun.invoiceByAdvanceFilter(req.query.name, req.query.app, cname, date, daterange, total, totalgt, totallt, due, duegt, duelt, status);
+				arr = await await xerofun.invoiceByAdvanceFilter(req.query.name, req.query.app, cname, date, daterange, total, totalgt, totallt, due, duegt, duelt, status,config1);
 				invoice.push(arr);
 			}
 			else {
@@ -672,7 +790,7 @@ router.get('/invoice/filter', async function(req,res) {
 })
 
 router.get('/pdf', async function(req,res) {
-	var pdf = await xerofun.getListInvoiceById('Dweep', 'Private App Demo', 'e54dec87-4145-4e6b-9f7f-4411dd5942d7');
+	var pdf = await xerofun.getListInvoiceById('name', 'app', 'id');
   res.contentType("application/pdf");
 	var base64data = new Buffer(pdf, 'binary').toString('base64');
 	var apidata = new Buffer(base64data, 'base64');
