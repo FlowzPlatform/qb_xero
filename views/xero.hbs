@@ -262,9 +262,11 @@
                     <td>
                         {{this.data.Date}}
                     </td>
-                    <td>
-                        {{this.data.LineItems.[0].Description}}
-                    </td>
+                    {{#each this.data.LineItems}}
+                        <td>
+                            {{this.Description}}
+                        </td>
+                    {{/each}}
                     <td>
                         {{this.data.AmountPaid}}
                     </td>

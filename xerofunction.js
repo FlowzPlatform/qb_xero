@@ -135,8 +135,11 @@ exports.getListInvoices = async function(accname, app,config1) {
              status: {},
              data: {}
            };
-           if(invoice.Status == 'AUTHORISED' || invoice.Status == 'DRAFT') {
+           if(invoice.Status == 'AUTHORISED') {
              arrinvoice.status = 'Unpaid'
+           }
+           else if(invoice.Status == 'DRAFT') {
+             arrinvoice.status = 'Draft'
            }
            else {
              arrinvoice.status = 'Paid'
@@ -317,276 +320,15 @@ exports.postSaveInvoice = async function(accname, app, name, description, qty, a
   })
 }
 
-//#################################################################
-exports.paymentviastripe = async function(req,amount) {
-  var amount = parseInt(amount);
-  return new Promise(function (resolve, reject) {
-    var options = {
-      method: "POST",
-      uri: "http://172.16.160.32.:3030/payment",
-      body: {
-                "gateway":"stripe",
-                "amount" : amount,
-                "currency":"usd",
-                "cardNumber":req.body.cardnumber,
-                "expMonth":req.body.expire_month,
-                "expYear":req.body.expire_year,
-                "cvc":req.body.cvc,
-                "description":"this is desc",
-                "isCustomer":false
-      },
-      json: true, // Automatically stringifies the body to JSON
-      headers: {
-        "X-api-token" : ""
-      }
-    };
-    console.log("########################",options);
-    rp(options)
-        .then(function (parsedBody) {
-          console.log("inside then%%%%%%%%%%%",parsedBody)
-          if (parsedBody.type) {
-            console.log("Error if",parsedBody.message);
-            resolve({err:parsedBody})
-          } else {
-            resolve(parsedBody);
-          }
-            // POST succeeded...
-        })
-        .catch(function (err) {
-          console.log("inside catch")
-          resolve({err:err});
-            // POST failed...
-        });
-  })
-}
-
-exports.paymentviaauthdotnet = async function(req,amount) {
-  var amount = parseInt(amount);
-  return new Promise(function (resolve, reject) {
-    var options = {
-      method: "POST",
-      uri: "http://172.16.160.32.:3030/payment",
-      body: {
-          "gateway":"authdotnet",
-           "amount": amount,
-           "cardNumber":req.body.cardnumber,
-           "expMonth":req.body.expire_month,
-           "expYear":req.body.expire_year,
-           "cvc":req.body.cvc,
-           "isCustomer":false
-          },
-      json: true, // Automatically stringifies the body to JSON
-      headers: {
-        "X-api-token" : "",
-         "x-api-login" :  ""
-      }
-    };
-    console.log("########################",options);
-    rp(options)
-        .then(function (parsedBody) {
-          console.log("inside then%%%%%%%%%%%",parsedBody)
-          resolve(parsedBody);
-            // POST succeeded...
-        })
-        .catch(function (err) {
-          console.log("inside catch")
-          resolve({err:err});
-            // POST failed...
-        });
-  })
-}
-
-exports.paymentviapaypal = async function(req,amount) {
-  // var amount = parseInt(amount);
-  return new Promise(function (resolve, reject) {
-    var options = {
-      method: "POST",
-      uri: "http://172.16.160.32.:3030/payment",
-      body: {
-          "gateway":"paypal",
-          "intent": "sale",
-            "payer": {
-              "payment_method": "credit_card",
-              "funding_instruments": [{
-                "payment_card": {
-                  "type": req.body.cardtype,
-                  "number": req.body.cardnumber,
-                  "expire_month":parseInt(req.body.expire_month),
-                  "expire_year": parseInt(req.body.expire_year),
-                  "cvv2": parseInt(req.body.cvc),
-                  "billing_country": "US",
-                }
-              }]
-            },
-            "transactions": [{
-              "amount": {
-                "total": amount,
-                "currency": "USD",
-                "details": {
-                  "subtotal": amount,
-                  "tax": "0",
-                  "shipping": "0"
-                }
-              },
-              "description": "This is the payment transaction description"
-            }]
-        },
-      json: true, // Automatically stringifies the body to JSON
-      headers: {
-        "X-api-token" : "",
-         "x-api-login" :  ""
-      }
-    };
-    console.log("########################",options.body.payer.funding_instruments[0]);
-    rp(options)
-        .then(function (parsedBody) {
-          console.log("inside then%%%%%%%%%%%",parsedBody)
-          if (parsedBody.response.error) {
-            console.log("inside if error",parsedBody.response.error_description);
-            resolve({err:parsedBody.response})
-          }
-          resolve(parsedBody);
-            // POST succeeded...
-        })
-        .catch(function (err) {
-          console.log("inside catch")
-          resolve({err:err});
-            // POST failed...
-        });
-  })
-}
-
-exports.payment = async function(req,config1,gateway,amount,type,cardNum,expMonth,expYear,cvc) {
-
-  return new Promise(function (resolve, reject) {
-
-    if (gateway == "paypal") {
-      config1.body_option.transactions[0].amount.total = amount;
-      config1.body_option.transactions[0].amount.details.subtotal = amount;
-      config1.body_option.payer.funding_instruments[0].payment_card.type = type;
-      config1.body_option.payer.funding_instruments[0].payment_card.number = cardNum;
-      config1.body_option.payer.funding_instruments[0].payment_card.expire_month = expMonth;
-      config1.body_option.payer.funding_instruments[0].payment_card.expire_year = expYear;
-      config1.body_option.payer.funding_instruments[0].payment_card.cvv2 = cvc;
-    }
-    else {
-      config1.body_option.amount = (amount * 100);
-      config1.body_option.cardNumber = cardNum;
-      config1.body_option.expMonth = expMonth;
-      config1.body_option.expYear = expYear;
-      config1.body_option.cvc = cvc;
-    }
-
-    console.log("Config data%%%%%%%",config1.body_option);
-    // console.log("Config data%%%%%%%",config1.body_option.transactions);
-    var options = {
-      method: "POST",
-      uri: "http://172.16.61.188:3032/payment",
-      body: config1.body_option,
-      json: true, // Automatically stringifies the body to JSON
-      headers: config1.headers
-    };
-
-    rp(options)
-        .then(function (parsedBody) {
-          // console.log("inside then%%%%%%%%%%%",parsedBody)
-          resolve(parsedBody);
-          // if (parsedBody.type || parsedBody.response.error) {
-          //   // console.log("Error if",parsedBody.response);
-          //   resolve({err:parsedBody})
-          // } else {
-          //   resolve(parsedBody);
-          // }
-            // POST succeeded...
-        })
-        .catch(function (err) {
-          console.log("inside catch")
-          resolve({err:err});
-            // POST failed...
-        });
-  })
-}
-
-exports.postPayment = async function(accname, app, id, amount, config1) {
-  console.log("Inside postPayment method");
-  console.log("##########Accname",accname,"########app",app);
-  return new Promise(async function(resolve, reject) {
-    var auth = await authorize(config1);
-    var samplePayment = {
-        Invoice: {
-            InvoiceID: id
-        },
-        Account: {
-            Code: '001'
-        },
-        Date: new Date().toISOString().split("T")[0],
-        Amount: amount
-    };
-    console.log("Sample payment",samplePayment);
-    var paymentObj = xeroClient.core.payments.newPayment(samplePayment);
-    var myPayment;
-    paymentObj.save()
-        .then(function(payments) {
-            myPayment = payments.entities[0];
-            console.log("Save");
-            resolve(myPayment);
-        })
-        .catch(function(err) {
-            console.log("Error in payment Xero")
-            // console.log(err);
-            resolve({err:'Not able to perform payment!! Check Payment data'});
-        });
-  })
-}
-
-exports.readpayment = async function(accname,app, config1) {
-    console.log("##########Accname",accname,"########app",app);
-    arr = [];
-    return new Promise(async function(resolve, reject) {
-      var auth = await authorize(config1);
-      if(auth == undefined) {
-        console.log("Inside if auth");
-        resolve({err:'Authentication error!!! Check your connection and try Again'});
-      }
-      else {
-        console.log("else auth");
-        xeroClient.core.payments.getPayments()
-         .then(function(payments) {
-            payments.forEach(function(payment){
-              var paymentarr = {
-                name: accname,
-                type: 'Payment',
-                app: app,
-                data: {}
-              };
-               paymentarr.data = payment;
-              //  console.log(paymentarr.data.Amount);
-               arr.push(paymentarr) ;
-            });
-            if (arr == undefined) {
-              console.log("result undefined");
-              resolve({ err:'No data found'});
-            }
-            else {
-              // console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@",arr[0]);
-              resolve(arr);
-            }
-         })
-         .catch(function(err) {
-           console.log("Error in read payment");
-           resolve({err:'Not able to fetch data'})
-         })
-      }
-    })
-}
-
 exports.invoiceByAdvanceFilter = async function(accname, app, name, date, dategt, datelt, total, totalgt, totallt, due, duegt, duelt, status, config1) {
   console.log("##########Accname",accname,"########app",app);
+  console.log("cname inside function",date);
   return new Promise(async function(resolve, reject){
     var auth = await authorize(config1);
     var filter = "";
     var flag = 0;
     if(name != "undefined" && name!= "" && name!= undefined) {
+      name = name.split(',');
       if (flag == 0) {
         condition = ' '
         flag = 1
@@ -594,7 +336,15 @@ exports.invoiceByAdvanceFilter = async function(accname, app, name, date, dategt
       else {
         condition = ' AND'
       }
-      filter += condition + ' Contact.Name = "' + name + '"'
+      filter += condition
+      name.forEach(function(cname, index) {
+        if (name.length == index+1) {
+          filter += ' Contact.Name = "' + cname + '"'
+        }
+        else {
+          filter += ' Contact.Name = "' + cname + '" OR'
+        }
+      })
     }
 
     if(date != "undefined" && date != "" && date!= undefined) {
@@ -618,7 +368,7 @@ exports.invoiceByAdvanceFilter = async function(accname, app, name, date, dategt
       else {
         condition = ' AND'
       }
-      filter += condition + ' Date >=  DateTime(' + dategt + ',00,00,00)'
+      filter += condition + 'Date > DateTime(' + dategt + ',00,00,00)'
     }
 
     if(datelt != "undefined" && datelt != "" && datelt != undefined) {
@@ -630,7 +380,7 @@ exports.invoiceByAdvanceFilter = async function(accname, app, name, date, dategt
       else {
         condition = ' AND'
       }
-      filter += condition + ' Date <=  DateTime(' + datelt + ',00,00,00)'
+      filter += condition + ' Date <  DateTime(' + datelt + ',00,00,00)'
     }
 
     if(total != "undefined" && total != "" && total != undefined) {

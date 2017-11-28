@@ -6,7 +6,7 @@
 
           <mj-section padding="0">
             <mj-column width="30%">
-              <mj-image padding-top="0" height="100px" src="http://householdairfresheners.com/wp-content/uploads/2017/02/Unique-Company-Logo-Design-With-Name-20-On-logo-designs-with-Company-Logo-Design-With-Name.jpg" />
+              <mj-image padding-top="0" height="100px" src="{{image.url}}" />
             </mj-column>
 
             <mj-column width="40%">

@@ -1,5 +1,6 @@
 
 {
+  "url" : " ",
   "credentials" : {
     
     "stripe" : {
@@ -74,7 +75,7 @@
 
           "headers": {
             "content-type" : "application/json",
-            "X-api-token" : "",
+            "x-api-token" : "",
             "x-api-login" :  "",
             "cache-control" : "no-cache"
           }

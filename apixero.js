@@ -357,211 +357,6 @@ router.post('/invoice/save',async (req, res) => {
   }
 })
 
-// router.post('/payment',async (req, res) => {
-//
-//   console.log("Inside get payment");
-//   var id = req.body.id;
-// 	var name= req.body.accname;
-// 	var app = req.body.appname;
-//   var amount = req.body.amount;
-//   var gateway = req.body.gateway;
-//   console.log("amount",amount,"gateway",gateway);
-//
-//   if (name == undefined || app == undefined) {
-//     console.log("Inside payment gateway");
-//     res.json({
-//       data: 'Invalid Account and App name'
-//     })
-//   }
-//   else {
-//     if (gateway == 'Stripe') {
-//       var payment = await xerofun.paymentviastripe(req,amount);
-//       // console.log("################",payment.status);
-//       if (payment.err) {
-//         console.log("#########Inside Err",payment.err.message);
-//         var err = payment.err.message
-//       }
-//       else {
-//         var status = payment.status;
-//       }
-//     }
-//     else if (gateway == 'AuthorizeDotNet') {
-//       var payment = await xerofun.paymentviaauthdotnet(req,amount);
-//       // console.log("###################",payment.messages.resultCode);
-//       if (payment.err) {
-//         console.log("#########Inside Err",payment.err.message);
-//         var err = payment.err.message
-//       }
-//       else {
-//         var status = payment.messages.resultCode
-//       }
-//     }
-//     else if (gateway == 'PayPal') {
-//       var payment = await xerofun.paymentviapaypal(req,amount);
-//       // console.log("###################",payment.state);
-//       if (payment.err) {
-//         console.log("#########Inside Err",payment.err.error_description);
-//         var err = payment.err.error_description
-//       }
-//       else {
-//         var status = payment.state
-//       }
-//     }
-//     else {
-//       console.log('Inside else');
-//       var err = 'Gateway is not provided'
-//     }
-//
-//     if(status == 'succeeded' || status == 'Ok' || status == 'created') {
-//       console.log("@@@@@@@@");
-//       config1 = checkNameAndApp(res,name,app);
-//       var payment = await xerofun.postPayment(name,app,id,amount,config1);
-//       if(payment == err) {
-//         res.json({
-//           data: err
-//         })
-//       }
-//       else {
-//         res.json({
-//           data: payment
-//         })
-//       }
-//     }
-//     else {
-//       console.log("%%%");
-//       if (err) { }
-//       else {
-//         var err = 'There is an error while performing payment using '+ gateway
-//       }
-//     }
-//     if (err) {
-//       res.json({
-//         data: err
-//       })
-//     }
-//   }
-// })
-
-router.post('/payment/:gateway', async function(req,res) {
-
-    var name = 'Krishna';
-    var app = 'Private Demo Company';
-    var id = req.body.InvoiceID;
-    var gateway = req.params.gateway;
-    console.log("#############gateway",gateway);
-    var paymentConfig = paymentConf.credentials[gateway];
-    // console.log("Payment config credentials", paymentConfig);
-
-    var payment = await xerofun.payment(req,paymentConfig,gateway,req.body.amount,req.body.type,req.body.cardNumber,req.body.expMonth,req.body.expYear,req.body.cvc);
-    // console.log("################",payment.status);
-    if (payment.err) {
-      console.log("#########Inside Err",payment.err.message);
-      var err = payment.err.message || payment.err.response.error_description
-      console.log("Error in payment",err);
-    }
-    else {
-      var status = payment.status || payment.messages.resultCode || payment.state
-      console.log("Status of payment", status);
-    }
-
-    if(status == 'succeeded' || status == 'Ok' || status == 'created') {
-      console.log("@@@@@@@@");
-      console.log("####payment amount",payment.amount);
-      config1 = checkNameAndApp(res,name,app);
-      var payment1 = await xerofun.postPayment(name, app, id, req.body.amount, config1);
-      if(payment1.err) {
-        res.json({
-          Err: payment1.err
-        })
-      }
-      else {
-        //Send Invoice as mail
-        console.log("before redirect");
-        res.redirect('/api/xero/invoice/confirmOrder?name='+name+'&app='+app+'&id='+id)
-        // res.json({
-        //   data: payment1
-        // })
-      }
-    }
-    else {
-      console.log("%%%");
-      if (err) { }
-      else {
-        var err = 'There is an error while performing payment using '+ gateway
-      }
-    }
-    if (err) {
-      res.json({
-        data: err
-      })
-    }
-})
-
-router.get('/invoice/confirmOrder', async(req,res) => {
-  console.log("Inside confirm order");
-  config1 = checkNameAndApp(res,req.query.name,req.query.app)
-  arr = await xerofun.getListInvoiceById(req.query.name, req.query.app, req.query.id, config1);
-  // console.log("@@@@@@@@@@@@@",arr[0].data._obj);
-  arr[0].data._obj.LineItems = _.filter(arr[0].data._obj.LineItems, (items, key)=> { return key != '_index' })
-
-  // console.log("##########data",arr);
-  console.log("#######",arr[0].data.LineItems);
-
-  // var MjmlTemplate = require('./Mjml_Template/template1.txt');
-  var MjmlTemplate = await fs.readFileSync('./Mjml_Template/template1.txt')
-  // console.log("%%%%%%%%%%mjml template",MjmlTemplate);
-  const template = compile("'" + MjmlTemplate + "'");
-
-  var context = {
-    invoice : arr
-  }
-
-  const mjml = template(context);
-  const html = mjml2html(mjml);
-
-  console.log("before send mail");
-  //Send email
-  var mail = await sendMail(html.html);
-
-  // console.log("#############",mjml);
-  // console.log("%%%%%%%%%%%",html.html);
-
-	// console.log("#######",input)
-
-  res.json(html.html);
-})
-
-let sendMail = async function(data) {
-  console.log("Inside send mail");
-  var transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // use SSL
-    auth: {
-        user: 'abc@gmail.com',
-        pass: 'xxxx'
-    }
-  });
-
-  var mailOptions = {
-      from: 'abc@gmail.com', // sender address (who sends)
-      to: 'xyz@gmail.com', // list of receivers (who receives)
-      subject: 'Invoice', // Subject line
-      html: data,
-      // text: text1,
-      //text:text1,
-  };
-
-  // send mail with defined transport object
-  transporter.sendMail(mailOptions, function(error, info){
-      if(error) {
-          return console.log(error);
-      }
-      console.log('Message sent!!!');
-      return info;
-  });
-}
-
 router.get('/invoice/filter', async function(req,res) {
 
 	console.log("Params",req.query);
@@ -593,13 +388,6 @@ router.get('/invoice/filter', async function(req,res) {
 
 	var date1 = new Date(date);
 	var date2 = new Date();
-
-  // var d1 = (new Date(date)).getDate();
-  // console.log("#######date date",d1);
-  // var m1 = (new Date(date)).getMonth();
-  // console.log("#######date month",m1);
-  // var y1 = (new Date(date)).getFullYear();
-  // console.log("#######date year",y1);
 
 	console.log("@@@@@@@@@",date1)
 	console.log("@@@@@@@@@",date2)
@@ -643,8 +431,9 @@ router.get('/invoice/filter', async function(req,res) {
 			}
 		}
 		data = []
+    console.log("******************invoice inside api",invoice);
     // console.log("QQQQQQQQQQQQQQQQQarrinvoice length",invoice[0].length);
-    if (invoice[0] == undefined || (invoice[0].length < 1)) {
+    if (invoice[0] == undefined || (invoice[0].length < 1) || (invoice[0].Err)) {
       console.log("!!!!!!!!!!!!!!!!!!!!!!!!!");
       res.json({
         Err: 'Not able to fetch data'

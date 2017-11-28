@@ -20,7 +20,6 @@ let hbs = exphbs.create({
 app.set('view engine', 'hbs')
 app.engine('hbs', hbs.engine)
 
-
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(session({secret: 'secret', resave: 'false', saveUninitialized: 'false'}))
 

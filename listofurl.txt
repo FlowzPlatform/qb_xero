@@ -1,26 +1,27 @@
 
 #############################################################
 List of QuickBook data url
-#############################################################
-//To fetch list of customers
-http://localhost:3001/qb/customers?name=Krishna&appMy%20Demo%20company
+############################################################# {
+  //To fetch list of customers
+  http://localhost:3001/qb/customers?name=Krishna&appMy%20Demo%20company
 
-//To fetch list of invoices
-http://localhost:3001/qb/invoice?name=Krishna&appMy%20Demo%20company
+  //To fetch list of invoices
+  http://localhost:3001/qb/invoice?name=Krishna&appMy%20Demo%20company
 
-//Fetch invoice by name by clicking on customer name
+  //Fetch invoice by name by clicking on customer name
 
-//Fetch invoice by id by clicking on invoice id
+  //Fetch invoice by id by clicking on invoice id
 
-//To add new customers
-http://localhost:3001/qb/customers/new
+  //To add new customers
+  http://localhost:3001/qb/customers/new
 
-//To add new invoice
-http://localhost:3001/qb/invoice/new
+  //To add new invoice
+  http://localhost:3001/qb/invoice/new
+}
 
 ###########################################################
 List of multiple filter url
-###########################################################
+########################################################### {
   //Filter invoice by name
   http://localhost:3000/qb/invoice/filter?name=Krishna&appMy%20Demo%20company&cname=Krishna%20Dalsania
 
@@ -52,58 +53,67 @@ List of multiple filter url
   http://localhost:3000/qb/invoice/filter?name=Krishna&appMy%20Demo%20company&status=paid
 
   http://localhost:3000/qb/invoice/filter?name=Krishna&appMy%20Demo%20company&status=unpaid
-
+}
 
 #############################################
 List of Xero data url
-#############################################
-//To fetch list of contacts
-http://localhost:3001/xero/contacts?name=Dweep&app=Test%20Application
+############################################# {
+  //To fetch list of contacts
+  http://localhost:3001/xero/contacts?name=Dweep&app=Test%20Application
 
-//To fetch list of invoices
-http://localhost:3001/xero/invoice?name=Dweep&app=Test%20Application
+  //To fetch list of invoices
+  http://localhost:3001/xero/invoice?name=Dweep&app=Test%20Application
 
-//Fetch invoice by name by clicking on customer name
+  //Fetch invoice by name by clicking on customer name
 
-//Fetch invoice by id by clicking on invoice id
+  //Fetch invoice by id by clicking on invoice id
 
-//To add new customers
-http://localhost:3001/xero/contacts/new
+  //To add new customers
+  http://localhost:3001/xero/contacts/new
 
-//To add new invoice
-http://localhost:3001/xero/invoice/new
+  //To add new invoice
+  http://localhost:3001/xero/invoice/new
+}
+
 
 ###########################################################
 List of multiple filter url
-###########################################################
-//Filter invoice by name
-http://localhost:3001/xero/invoice/filter?name=Krishna&app=Private%20App%20Demo%20Company&cname=Dweep
+########################################################### {
+  //Filter invoice by name
+  http://localhost:3001/xero/invoice/filter?name=Krishna&app=Private%20App%20Demo%20Company&cname=Dweep
 
-//Filter invoice by date add parameter "date" in url
-http://localhost:3001/xero/invoice/filter?name=Dweep&app=Test%20Application&date=2017,09,15
+  //Filter invoice by date add parameter "date" in url
+  http://localhost:3001/xero/invoice/filter?name=Dweep&app=Test%20Application&date=2017,09,15
 
-//Filter invoice by daterange add parameter "daterange" in url
-http://localhost:3001/xero/invoice/filter?name=Dweep&app=Test%20Application&daterange=2017,08,15to2017,09,16
+  //Filter invoice by daterange add parameter "daterange" in url
+  http://localhost:3001/xero/invoice/filter?name=Dweep&app=Test%20Application&daterange=2017,08,15to2017,09,16
 
-//Filter invoice by totalamount add parameter "total" in url
-http://localhost:3001/xero/invoice/filter?name=Dweep&app=Test%20Application&total=1732
+  //Filter invoice by totalamount add parameter "total" in url
+  http://localhost:3001/xero/invoice/filter?name=Dweep&app=Test%20Application&total=1732
 
-//Filter invoice by totalamount greater than add parameter "totalgt" in url
-http://localhost:3001/xero/invoice/filter?name=Dweep&app=Test%20Application&totalgt=1000
+  //Filter invoice by totalamount greater than add parameter "totalgt" in url
+  http://localhost:3001/xero/invoice/filter?name=Dweep&app=Test%20Application&totalgt=1000
 
-//Filter invoice by totalamount less than add parameter "totallt" in url
-http://localhost:3000/xero/invoice/filter?name=Krishna&app=Private%20App%20Demo%20Company&totallt=1000
+  //Filter invoice by totalamount less than add parameter "totallt" in url
+  http://localhost:3000/xero/invoice/filter?name=Krishna&app=Private%20App%20Demo%20Company&totallt=1000
 
-//Filter invoice by due amount add parameter "due" in url
-http://localhost:3000/xero/invoice/filter?name=Krishna&app=Private%20App%20Demo%20Company&due=396
+  //Filter invoice by due amount add parameter "due" in url
+  http://localhost:3000/xero/invoice/filter?name=Krishna&app=Private%20App%20Demo%20Company&due=396
 
-//Filter invoice by dueamount greater than add parameter "duegt" in url
-http://localhost:3000/xero/invoice/filter?name=Krishna&app=Private%20App%20Demo%20Company&duegt=100
+  //Filter invoice by dueamount greater than add parameter "duegt" in url
+  http://localhost:3000/xero/invoice/filter?name=Krishna&app=Private%20App%20Demo%20Company&duegt=100
 
-//Filter invoice by dueamount less than add parameter "duelt" in url
-http://localhost:3000/xero/invoice/filter?name=Krishna&app=Private%20App%20Demo%20Company&duelt=100
+  //Filter invoice by dueamount less than add parameter "duelt" in url
+  http://localhost:3000/xero/invoice/filter?name=Krishna&app=Private%20App%20Demo%20Company&duelt=100
 
-//Filter by status of invoice(i.e., fully paid or unpaid) add parameter "status" in url
-http://localhost:3000/xero/invoice/filter?name=Krishna&app=Private%20App%20Demo%20Company&status=paid
+  //Filter by status of invoice(i.e., fully paid or unpaid) add parameter "status" in url
+  http://localhost:3000/xero/invoice/filter?name=Krishna&app=Private%20App%20Demo%20Company&status=paid
 
-http://localhost:3000/xero/invoice/filter?name=Krishna&app=Private%20App%20Demo%20Company&status=unpaid
+  http://localhost:3000/xero/invoice/filter?name=Krishna&app=Private%20App%20Demo%20Company&status=unpaid
+}
+
+#######################################################
+Date formate in xero
+#######################################################
+  //For filteration date except is in the formate of
+          -----------yyyy,mm,dd-------------
