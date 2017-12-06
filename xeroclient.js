@@ -4,8 +4,17 @@ const exphbs = require('express-handlebars'),
 
 var express = require('express');
 var xerofun = require('./xerofunction');
-
 var router = express.Router();
+
+//To convert mjml to html
+var fs = require('fs')
+const { compile } = require('handlebars');
+const { mjml2html } = require('mjml');
+var _ = require('lodash');
+
+//To send email
+var nodemailer = require('nodemailer');
+var htmlToText = require('html-to-text');
 
 var arrcontact = [];
 var arrinvoice = [];
@@ -38,22 +47,6 @@ let checkNameAndApp = function(res,name,app) {
 
 // render the main.hbs layout and the index.hbs file
 router.get('/', (req, res) => {
-    // var urlname = 'krishna';
-    // var urlapp = 'private app test company'
-    // var allname = config.credentials;
-    // console.log("allname",allname);
-    // for (uname in allname) {
-    //   console.log("name uppercase",uname.toUpperCase(),urlname.toUpperCase());
-    //   if (uname.toUpperCase() == urlname.toUpperCase()) {
-    //     configdata = config.credentials[uname]
-    //     for (app in configdata) {
-    //       if(app.toUpperCase() == urlapp.toUpperCase()) {
-    //         config1 = configdata[app];
-    //         console.log("config1",config1);
-    //       }
-    //     }
-    //   }
-    // }
     res.render('xero', {app:'xero'})
 })
 
@@ -77,12 +70,12 @@ router.get('/contacts',async (req, res) => {
         res.render('xero',{err:'Invalid Account Name'})
       }
 			for(item in app) {
-          console.log("##############",item);
-          config1 = app[item];
-          arr = await xerofun.getContactDetail(req.query.name, item, config1)
-          arrcontact.push(arr);
-		   }
-	   }
+        // console.log("##############",item);
+        config1 = app[item];
+        arr = await xerofun.getContactDetail(req.query.name, item, config1)
+        arrcontact.push(arr);
+		  }
+	  }
   }
 	else {
 		var apps = config.credentials;
@@ -104,12 +97,12 @@ router.get('/contacts',async (req, res) => {
     res.render('xero',{err:arrcontact[0].err})
   }
   else {
-    console.log("else arrcontact@@@@@@@@@@@@@@@@@@@@@@@@@@");
     arrcontact.forEach(function(result,i) {
       result.forEach(function(item, inx) {
         data.push(item)
       })
     })
+    console.log("arrcontact@@@@@@@@@@@@@@@@@@@@@@@@@@",data[1].data);
     // console.log("###########Customer data#######",data[0].data);
     // console.log("###########Customer data#######",data[0].data.Addresses['0'].tracking._instance);
     // console.log("###########Customer status#######",data[0].data.ContactStatus);
@@ -310,6 +303,7 @@ router.get('/invoice/id/:id',async (req, res) => {
 		if (req.query.app != undefined) {
       config1 = checkNameAndApp(res,req.query.name,req.query.app)
 			arr = await xerofun.getListInvoiceById(req.query.name, req.query.app, id, config1);
+      arr[0].data._obj.LineItems = _.filter(arr[0].data._obj.LineItems, (items, key)=> { return key != '_index' })
 			arrinvoice.push(arr);
 		}
 		else {
@@ -320,6 +314,7 @@ router.get('/invoice/id/:id',async (req, res) => {
 			for(item in app) {
               config1 = app[item];
 	            arr = await xerofun.getListInvoiceById(req.query.name, item, id, config1);
+              arr[0].data._obj.LineItems = _.filter(arr[0].data._obj.LineItems, (items, key)=> { return key != '_index' })
 	            arrinvoice.push(arr);
 	        }
 		}
@@ -333,6 +328,7 @@ router.get('/invoice/id/:id',async (req, res) => {
           configdata = config.credentials[uname];
           config1 = configdata[item];
           arr = await xerofun.getListInvoiceById(uname, item, id, config1);
+          arr[0].data._obj.LineItems = _.filter(arr[0].data._obj.LineItems, (items, key)=> { return key != '_index' })
           arrinvoice.push(arr);
       }
 		}
@@ -351,8 +347,9 @@ router.get('/invoice/id/:id',async (req, res) => {
   			data.push(item)
   		})
   	})
-    // console.log("Inside invoice by id",data[0].data.Contact.EmailAddress);
-    // console.log("Inside invoice by id",data[0].data.Contact.Phones);
+    // console.log("#########data.contacts",data[0].data.Contact.Addresses[0]);
+    // console.log("#########data lineitems",data[0].data.LineItems);
+    // console.log("&&&&&&&&&&&Inside invoice by id",data);
     // console.log("###############################");
     res.render('xero', {invoicedetail: data})
   }
@@ -397,189 +394,6 @@ router.post('/invoice/add',async (req, res) => {
   }
 })
 
-//############################################# Payment via gateway
-//Create payment for perticular invoice
-router.get('/payment/:id/:cname', (req,res) => {
-  var name = req.session.name;
-  var app = req.session.app;
-  var id = req.params.id;
-  config1 = checkNameAndApp(res,name,app);
-  console.log("name",name,"app",app,"id",id);
-  res.render('addpayment',{id:id, name:req.params.cname});
-})
-
-router.post('/paymentviagateway', async function(req,res) {
-	console.log("Inside get payment");
-  var id = req.body.id;
-	var name= req.session.name;
-	var app = req.session.app;
-  var amount = req.body.amount;
-  var gateway = req.body.gateway;
-  console.log("amount",amount,"gateway",gateway);
-
-  if (name == undefined || app == undefined) {
-    console.log("Inside payment gateway");
-    res.redirect('/xero/invoice/id/'+id+'?name='+name+'&app='+app)
-  }
-  else {
-    if (gateway == 'Stripe') {
-      var payment = await xerofun.paymentviastripe(req,amount);
-      // console.log("################",payment.status);
-      if (payment.err) {
-        console.log("#########Inside Err",payment.err.message);
-        var err = payment.err.message
-      }
-      else {
-        var status = payment.status;
-      }
-    }
-    else if (gateway == 'AuthorizeDotNet') {
-      var payment = await xerofun.paymentviaauthdotnet(req,amount);
-      // console.log("###################",payment.messages.resultCode);
-      if (payment.err) {
-        console.log("#########Inside Err",payment.err.message);
-        var err = payment.err.message
-      }
-      else {
-        var status = payment.messages.resultCode
-      }
-    }
-    else if (gateway == 'PayPal') {
-      var payment = await xerofun.paymentviapaypal(req,amount);
-      // console.log("###################",payment.state);
-      if (payment.err) {
-        console.log("#########Inside Err",payment.err.error_description);
-        var err = payment.err.error_description
-      }
-      else {
-        var status = payment.state
-      }
-    }
-    else {
-      console.log('Inside else');
-      var err = 'select gateway'
-    }
-
-    if(status == 'succeeded' || status == 'Ok' || status == 'created') {
-      console.log("@@@@@@@@");
-      config1 = checkNameAndApp(res,name,app);
-      var payment = await xerofun.postPayment(name,app,id,amount,config1);
-      if(payment == err) {
-        res.render('xero',{err:err})
-      }
-      else {
-        res.redirect('/xero/invoice/id/'+id+'?name='+name+'&app='+app);
-      }
-    }
-    else {
-      console.log("%%%");
-      if (err) { }
-      else {
-        var err = 'There is an error while performing payment using '+ gateway
-      }
-    }
-    if (err) {
-      res.render('xero',{err:err})
-    }
-  }
-})
-
-router.get('/paymentdetail/:invoiceid',async function(req,res) {
-  console.log("Inside payment detail",data[0]);
-    // console.log("Inside payment detail",data[0].data._obj);
-    arr = [];
-    var payment = data[0].data.Payments;
-    console.log("payment",payment);
-    console.log("Name",data[0].data.Contact.Name);
-    console.log("InvoiceId",data[0].data.InvoiceID);
-
-    // console.log("QQQQQQQQQQQQQQQQQpayment length",payment[0].length);
-    if (payment[0] == undefined || (payment[0].length < 1)) {
-      console.log("!!!!!!!!!!!!!!!!!!!!!!!!!");
-      res.render('xero',{err:'Payment not done yet'})
-    }
-    else {
-      console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@");
-      payment.forEach(function(result,i) {
-        paymentdata = {
-          name: data[0].data.Contact.Name,
-          invoiceid: data[0].data.InvoiceID,
-          data: {}
-        }
-        paymentdata.data = result;
-        // console.log("@@@@@@@@@@@@@@",result);
-        // console.log('****************',result._obj.Amount);
-        arr.push(paymentdata);
-      })
-      res.render('xero',{payment:arr});
-    }
-})
-
-// router.post('/payment',async (req, res) => {
-//   var name = req.session.name;
-//   var app= req.session.app;
-//   var id = req.body.id;
-//   var amount = req.body.amount;
-//   console.log("amount",amount);
-//   var payment = await xerofun.postPayment(name, app, id, amount);
-//   res.redirect('/xero/app/invoice/id/'+id+'?name='+name+'&app='+app);
-// })
-
-router.get('/listpayment', async function(req,res) {
-  console.log("Params",req.query);
-	payment = [];
-	var params;
-	console.log("Params Length",req.query)
-	console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-  contactName = req.params.name;
-
-	if (req.query.name != undefined) {
-		if (req.query.app != undefined) {
-      config1 = checkNameAndApp(res,req.query.name,req.query.app)
-			arr = await xerofun.readpayment(req.query.name, req.query.app, config1);
-			payment.push(arr);
-		}
-		else {
-			var app = config.credentials[req.query.name];
-			for(item in app) {
-          config1 = checkNameAndApp(res,req.query.name,item);
-          arr = await xerofun.readpayment(req.query.name, item, config1)
-          payment.push(arr);
-      }
-		}
-	}
-	else {
-		var apps = config.credentials;
-	 	console.log("apps",apps);
-		for (uname in apps) {
-			var app = config.credentials[uname];
-			for(item in app) {
-          arr = await xerofun.readpayment(uname, item, config1)
-          payment.push(arr);
-      }
-		}
-	}
-  data = []
-  // console.log("QQQQQQQQQQQQQQQQQarrinvoice length",payment[0].length);
-  if (payment[0] == undefined || (payment[0].length < 1)) {
-    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!");
-    res.render('xero',{err:'No data found'})
-  }
-  else {
-    console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@");
-    payment.forEach(function(result,i){
-  		// console.log('result', result)
-  		result.forEach(function(item, inx){
-  			data.push(item)
-  		})
-  	})
-    // console.log("Payment list",data[0]);
-    // console.log("Payment list contact",data[0].data._obj.Invoice.Contact.Name);
-    // console.log("payment amount",data[0].data.Amount);
-    // console.log("invoice amount",data[0].data._obj.Amount);
-    res.render('xero', {listpayment: data})
-  }
-})
 
 router.get('/invoice/filter', async function(req,res) {
 
@@ -628,7 +442,7 @@ router.get('/invoice/filter', async function(req,res) {
 		if (req.query.name != undefined) {
 			if (req.query.app != undefined) {
         config1 = checkNameAndApp(res,req.query.name,req.query.app);
-				arr = await await xerofun.invoiceByAdvanceFilter(req.query.name, req.query.app, cname, date, daterange, total, totalgt, totallt, due, duegt, duelt, status);
+				arr = await await xerofun.invoiceByAdvanceFilter(req.query.name, req.query.app, cname, date, daterange, total, totalgt, totallt, due, duegt, duelt, status,config1);
 				invoice.push(arr);
 			}
 			else {
@@ -669,108 +483,6 @@ router.get('/invoice/filter', async function(req,res) {
   		res.render('xero', {filter : data});
     }
   }
-})
-
-router.get('/pdf', async function(req,res) {
-	var pdf = await xerofun.getListInvoiceById('Dweep', 'Private App Demo', 'e54dec87-4145-4e6b-9f7f-4411dd5942d7');
-  res.contentType("application/pdf");
-	var base64data = new Buffer(pdf, 'binary').toString('base64');
-	var apidata = new Buffer(base64data, 'base64');
-  console.log("###########################",apidata);
-	res.send(apidata);
-	// res.contentType("application/pdf");
-	// res.send(pdf);
-	// res.end(pdf);
-	// var data =fs.readFileSync(pdf);
-	// res.contentType("application/pdf");
-	// res.send(pdf);
-	// res.render('index',{pdf:pdf});
-})
-
-//List all invoice and payment
-let listdata = async function(req,name,app) {
-	var newarr = [];
-	if(req.query.invoice != undefined) {
-		console.log("1111111111111");
-		var invoice = await xerofun.getListInvoices(name, app);
-		newarr.push(invoice)
-	}
-	if(req.query.payment != undefined) {
-		console.log("22222222222222222");
-		var payment = await xerofun.readpayment(name, app);
-		newarr.push(payment)
-	}
-	// if(req.query.refund != undefined) {
-	// 	console.log("33333333333333333");
-	// 	var refund = await qbfun.readRefund(req, name, app);
-	// 	newarr.push(refund)
-	// }
-	if( (req.query.invoice == undefined) && (req.query.payment == undefined) ) {
-		console.log("44444444444444444");
-		var invoice = await xerofun.getListInvoices(name, app);
-    // console.log("invoice",invoice[0]);
-    console.log("Invoice length",invoice.length);
-		newarr.push(invoice);
-		var payment = await xerofun.readpayment(name, app);
-    // console.log("payment",payment[0]);
-    console.log("Payment length",payment.length);
-		newarr.push(payment);
-		// var refund = await qbfun.readRefund(req, name, app);
-		// newarr.push(refund);
-	}
-  // console.log("Array length",newarr.length);
-	return newarr;
-}
-
-router.get('/list', async function(req,res) {
-		var arr = [];
-		data = [];
-		console.log("Params",req.query);
-		console.log("Params Length",req.query)
-		console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-
-		if (req.query.name != undefined) {
-			if (req.query.app != undefined) {
-        console.log("1!");
-				var arr1 = await listdata(req, req.query.name, req.query.app);
-        // console.log("##########################",arr1);
-				arr.push(arr1);
-        console.log("array@@@@@@@@@@@@@@@@@@@@@@@@@",arr);
-			}
-			else {
-				var app = config.credentials[req.query.name];
-				for(item in app) {
-          console.log("2!");
-	         var arr1 = await listdata(req, req.query.name, item)
-           console.log("##########################",arr1);
-					 arr.push(arr1)
-	      }
-			}
-		}
-		else {
-			var apps = config.credentials;
-		 	console.log("apps",apps);
-			for (uname in apps) {
-				var app = config.credentials[uname];
-				for(item in app) {
-          console.log("3!");
-	          var arr1 = await listdata(req, uname, item)
-						arr.push(arr1)
-	      }
-			}
-		}
-    // console.log("$$$$$$$$$$$$%%%%%%%%%%%%%%%%%%%%%%%%%",arr[0]);
-		arr.forEach(function(response,i) {
-      // console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",response);
-			response.forEach(function(result, i) {
-        // console.log("####################################",result);
-				result.forEach(function(item,i) {
-					data.push(item)
-				})
-			})
-		})
-		// console.log("@@@@@@@@@@@@@@@@@@@@22",arr);
-		res.render('xero', {listall:data});
 })
 
 module.exports=router;

@@ -27,16 +27,6 @@ let getTokenTest = async function(req) {
       console.log("Get New Token", token)
       if (err) {
         console.log("Inside err");
-        // var arr1 = [];
-        // var arr2 = [];
-        //
-        // for (var prop in err) {
-        //   console.log("&&&&&&&&&&&&&&&&&&&",prop);
-        //    arr1.push(prop);
-        //    arr2.push(err[prop]);
-        // }
-        // console.log("arr1",arr1);
-        // console.log("arr2",arr2);
         resolve({err:'Check your connection and credentials'})
       }
       else {
@@ -122,8 +112,8 @@ let resultdata = function(result,name,app) {
 }
 
 let listCustomer = async function(req, name, app){
-  var url = config.api_uri + req.session.credentials[0].realmId + '/query?query=select * from Customer'
-  console.log('Making API call to: ' + url)
+    var url = config.api_uri + req.session.credentials[0].realmId + '/query?query=select * from Customer'
+    console.log('Making API call to: ' + url)
 
     requestObj = await getRequestObj (url)
     var result = await make_api_call (requestObj)
@@ -212,7 +202,7 @@ exports.listinvoice = async function(req,name,item) {
         var url = config.api_uri + req.session.credentials[0].realmId + '/query?query=select * from Invoice'
         console.log('Making API call to: ' + url)
         var new1 = getTokenTest(req)
-          .then(async function(token){
+          .then(async function(token) {
             if (token == undefined) {
               console.log(1);
               resolve({err:'Token expired'})
@@ -322,10 +312,10 @@ let addInvoice =async function(req, amount) {
     return result;
 }
 
-exports.saveinvoice = async function(req, name, appname, custname,amount){
+exports.saveinvoice = async function(req, name, appname, custname,amount) {
   return new Promise(function(resolve, reject){
     var new1 = getTokenTest(req)
-      .then(async function(token){
+      .then(async function(token) {
         if(token == undefined) {
           resolve({err:'Token expired'})
         }
@@ -535,284 +525,31 @@ exports.invoiceByMultipleFilter = async function(req, accname, appname, name, da
           resolve(arr);
       })
     })
-    // if (name == undefined && date == undefined && daterange == undefined && totalgt == undefined && totallt == undefined && duegt == undefined && duelt == undefined && status != undefined) {
-    //     if (status == 'paid') {
-    //         var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE Balance = '0'"
-    //     }
-    //     else {
-    //         var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE Balance > '0'"
-    //     }
-    // }
-    // else if (name == undefined && date == undefined && daterange == undefined && totalgt == undefined && totallt == undefined && duegt == undefined && duelt != undefined && status == undefined) {
-    //   var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE Balance < '" +duelt+ "'"
-    // }
-    // else if (name == undefined && date == undefined && daterange == undefined && totalgt == undefined && totallt == undefined && duegt != undefined && duelt == undefined && status == undefined) {
-    //   var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE Balance > '" +duegt+ "'"
-    // }
-    // else if (name == undefined && date == undefined && daterange == undefined && totalgt == undefined && totallt == undefined && duegt != undefined && duelt != undefined && status == undefined) {
-    //   var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE Balance > '" +duegt+ "' AND Balance < '" +duelt + "'"
-    // }
-    // else if (name == undefined && date == undefined && daterange == undefined && totalgt == undefined && totallt != undefined && duegt == undefined && duelt == undefined && status == undefined) {
-    //   var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE TotalAmt < '" +totallt+ "'"
-    // }
-    // else if (name == undefined && date == undefined && daterange == undefined && totalgt == undefined && totallt != undefined && duegt == undefined && duelt == undefined && status != undefined) {
-    //     if (status == 'paid') {
-    //         var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE TotalAmt <'"+totallt+"' AND Balance = '0'"
-    //     }
-    //     else {
-    //         var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE TotalAmt <'"+totallt+"' AND Balance > '0'"
-    //     }
-    // }
-    // else if (name == undefined && date == undefined && daterange == undefined && totalgt == undefined && totallt != undefined && duegt == undefined && duelt != undefined && status == undefined) {
-    //   var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE TotalAmt < '" +totallt+ "' AND Balance < '" +duelt + "'"
-    // }
-    // else if (name == undefined && date == undefined && daterange == undefined && totalgt == undefined && totallt != undefined && duegt != undefined && duelt == undefined && status == undefined) {
-    //   var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE TotalAmt < '" +totallt+ "' AND Balance > '" +duelt + "'"
-    // }
-    // else if (name == undefined && date == undefined && daterange == undefined && totalgt == undefined && totallt != undefined && duegt != undefined && duelt != undefined && status == undefined) {
-    //   var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE TotalAmt < '" +totallt+ "' AND Balance > '" +duegt+ "' AND Balance < '" +duelt + "'"
-    // }
-    // else if (name == undefined && date == undefined && daterange == undefined && totalgt != undefined && totallt == undefined && duegt == undefined && duelt == undefined && status == undefined) {
-    //   var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE TotalAmt > '" +totalgt+ "'"
-    // }
-    // else if (name == undefined && date == undefined && daterange == undefined && totalgt != undefined && totallt == undefined && duegt == undefined && duelt == undefined && status != undefined) {
-    //     if (status == 'paid') {
-    //         var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE TotalAmt >'"+totalgt+"' AND Balance = '0'"
-    //     }
-    //     else {
-    //         var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE AND TotalAmt >'"+totalgt+"' AND Balance > '0'"
-    //     }
-    // }
-    // else if (name == undefined && date == undefined && daterange == undefined && totalgt != undefined && totallt == undefined && duegt == undefined && duelt != undefined && status == undefined) {
-    //   var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE TotalAmt > '" +totalgt+ "' AND Balance < '" +duelt + "'"
-    // }
-    // else if (name == undefined && date == undefined && daterange == undefined && totalgt != undefined && totallt == undefined && duegt != undefined && duelt == undefined && status == undefined) {
-    //   var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE TotalAmt > '" +totalgt+ "' AND Balance > '" +duegt + "'"
-    // }
-    // else if (name == undefined && date == undefined && daterange == undefined && totalgt != undefined && totallt == undefined && duegt != undefined && duelt != undefined && status == undefined) {
-    //   var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE TotalAmt > '" +totalgt+ "' AND Balance > '" +duegt+ "' AND Balance < '" +duelt + "'"
-    // }
-
-    // if(name != undefined && date != undefined && totalamount != undefined && status == undefined) {
-    //     await getcustomerid();
-    //     var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE CustomerRef = '" + value + "' AND TxnDate ='"+date+"' AND TotalAmt ='"+amount+"'"
-    // }
-    // else if(name != undefined && date != undefined && totalamount == undefined && status != undefined) {
-    //     await getcustomerid();
-    //     if (status == 'paid') {
-    //         var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE CustomerRef = '" + value + "' AND TxnDate ='"+date+"' AND Balance = '0'"
-    //     }
-    //     else {
-    //         var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE CustomerRef = '" + value + "' AND TxnDate ='"+date+"' AND Balance > '0'"
-    //     }
-    // }
-    // else if(name != undefined && date != undefined && totalamount == undefined && status == undefined) {
-    //     await getcustomerid();
-    //     var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE CustomerRef = '" + value + "' AND TxnDate ='"+date+"'"
-    // }
-    // else if(name != undefined && date == undefined && totalamount != undefined && status != undefined) {
-    //     await getcustomerid();
-    //     if (status == 'paid') {
-    //         var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE CustomerRef = '" + value + "' AND TotalAmt ='"+amount+"' AND Balance = '0'"
-    //     }
-    //     else {
-    //         var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE CustomerRef = '" + value + "' AND TotalAmt ='"+amount+"' AND Balance > '0'"
-    //     }
-    // }
-    // else if(name != undefined && date == undefined && totalamount != undefined && status == undefined) {
-    //     await getcustomerid();
-    //     var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE CustomerRef = '" + value + "' AND TotalAmt ='"+amount+"'"
-    // }
-    // else if(name != undefined && date == undefined && totalamount == undefined && status != undefined) {
-    //     await getcustomerid();
-    //     if (status == 'paid') {
-    //         var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE CustomerRef = '" + value + "' AND Balance = '0'"
-    //     }
-    //     else {
-    //         var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE CustomerRef = '" + value + "' AND Balance > '0'"
-    //     }
-    // }
-    // else if(name != undefined && date == undefined && totalamount == undefined && status == undefined) {
-    //     await getcustomerid();
-    //     var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE CustomerRef = '" + value + "'"
-    // }
-    // else if(name == undefined && date != undefined && totalamount != undefined && status != undefined) {
-    //     if (status == 'paid') {
-    //         var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE TxnDate ='"+date+ "' AND TotalAmt ='"+amount+"' AND Balance = '0'"
-    //     }
-    //     else {
-    //         var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE TxnDate ='"+date+ "' AND TotalAmt ='"+amount+"' AND Balance > '0'"
-    //     }
-    // }
-    // else if(name == undefined && date != undefined && totalamount != undefined && status == undefined) {
-    //     var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE TxnDate ='"+date+"' AND TotalAmt ='"+amount+"'"
-    // }
-    // else if(name == undefined && date != undefined && totalamount == undefined && status != undefined) {
-    //     if (status == 'paid') {
-    //         var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE TxnDate ='"+date+"' AND Balance = '0'"
-    //     }
-    //     else {
-    //         var url = config.api_uri + req.session.credentials[0].realmId + "/query?query=select * from Invoice WHERE TxnDate ='"+date+"' AND Balance > '0'"
-    //
-    //     }
-    // }
-    //
-    // else {
-    //     var filter = 'Contact.Name == "'+name+'" AND Date ==  DateTime('+date+',00,00,00) AND Total == '+total+' AND AmountPaid == '+paid+'';
-    // }
 }
 
-exports.getPdf = async function() {
-  var id = '226'
-  var url = config.api_uri + "123145873158439" + "/invoice/" + id + "/pdf"
-  console.log('Making API call to: ' + url)
-  var requestObj = {
-    url: url,
-    headers: {
-      'Authorization': 'Bearer ' + 'eyJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiYWxnIjoiZGlyIn0..E0mmS3t4DvihVGBgGAitSA.uq10QI5GUaNpGWYxkKsVuB8JOBAuPDs5C9vn9FUjC-Fvw0nK3sswoJulEsofg_rhT4LX0VAJSy5n3PoakTIn7zZfsJpy1pWfJuMIfnHLUXXANA_bpk8xYbpUOzgbvcz6BxR9CNLytCkok2ekyKRYXb6CLqe5Q4jjpIBNnKeDKRNLs1h8cr63dS3RWBWd5HNamChHtIGdOW4nbC8PPptW-U-7Mq_-8LA8VEy1pmXzzp37hJFNDqOSAANp55yF1B2_yxE0umWbmNzh4HZgThMA0QNV1OkecH51-KjwPBJv--VhJSiraIfcuYSpEXM0_jXWblTg2gwCSA2toqJ7vGoZMViDAFjMZVBEQnzCXMZUuQRWJzG6ZUoBYDFFIq_wI4jOfRnSH2p6eipmy4LcvhJN3N4an7FDoGZRYzQRZc8suj4bIU1S6TK9AYv4USdN0tjEhqbvdsIe3CIOELYAAJ6oQ3Dfwm1w-Emgz2GqabgJ_S-Bp6dBMN2YPqx_wEu9uwzGTLrlNFmQIb1S7sJVh5ZWUwMYbOb1_2aB5gybAXq_4LsPj8vqGCPA7Msq4QlQ7kn_qANozEGOxd7Z41lVoCSokmVdy9n89Ych1d2QnWc4UW1kfF47RurfANa7KnXt8W9-ID4ybcRnmp6IHioKPIZZ6agT4MKKocu3hzqpJZxyWUEcTqdE1P9mLNDDQThLHxGL.mLHtZ7o_iI_l-lIkIk7Pyw',
-      'Content-Type' : 'application/pdf',
-      'Accept' : 'application/pdf'
-    }
-  }
+// exports.getPdf = async function() {
+//   var id = '226'
+//   var url = config.api_uri + realmid + "/invoice/" + id + "/pdf"
+//   console.log('Making API call to: ' + url)
+//   var requestObj = {
+//     url: url,
+//     headers: {
+//       'Authorization': 'Bearer ' + token,
+//       'Content-Type' : 'application/pdf',
+//       'Accept' : 'application/pdf'
+//     }
+//   }
 
-  // Make API call
-  var result = await make_api_call(requestObj)
-  var data = result.body
-  // console.log("@@@@@@@@@@@@@@@@@@@@@@@RESPONSE BODY")
-  // console.log(data);
-  // console.log("@@@@@@@@@@@@@@@@@@@@@@@")
-  return data;
-}
+//   // Make API call
+//   var result = await make_api_call(requestObj)
+//   var data = result.body
+//   // console.log("@@@@@@@@@@@@@@@@@@@@@@@RESPONSE BODY")
+//   // console.log(data);
+//   // console.log("@@@@@@@@@@@@@@@@@@@@@@@")
+//   return data;
+// }
 
 //#################################################################
-exports.paymentviastripe = async function(req,amount) {
-  var amount = parseInt(amount);
-  return new Promise(function (resolve, reject) {
-    var options = {
-      method: "POST",
-      uri: "http://localhost:3030/payment",
-      body: {
-                "gateway":"stripe",
-                "amount" : amount,
-                "currency":"usd",
-                "cardNumber":req.body.cardnumber,
-                "expMonth":req.body.expire_month,
-                "expYear":req.body.expire_year,
-                "cvc":req.body.cvc,
-                "description":"this is desc",
-                "isCustomer":false
-      },
-      json: true, // Automatically stringifies the body to JSON
-      headers: {
-        "X-api-token" : ""
-      }
-    };
-    console.log("########################",options);
-    rp(options)
-        .then(function (parsedBody) {
-          console.log("inside then%%%%%%%%%%%",parsedBody)
-          resolve(parsedBody);
-            // POST succeeded...
-        })
-        .catch(function (err) {
-          console.log("inside catch")
-          reject(err);
-            // POST failed...
-        });
-  })
-}
-
-exports.paymentviaauthdotnet = async function(req,amount) {
-  var amount = parseInt(amount);
-  return new Promise(function (resolve, reject) {
-    var options = {
-      method: "POST",
-      uri: "http://localhost:3030/payment",
-      body: {
-          "gateway":"authdotnet",
-           "amount": amount,
-           "cardNumber":req.body.cardnumber,
-           "expMonth":req.body.expire_month,
-           "expYear":req.body.expire_year,
-           "cvc":req.body.cvc,
-           "isCustomer":false
-          },
-      json: true, // Automatically stringifies the body to JSON
-      headers: {
-        "X-api-token" : "",
-         "x-api-login" :  ""
-      }
-    };
-    console.log("########################",options);
-    rp(options)
-        .then(function (parsedBody) {
-          console.log("inside then%%%%%%%%%%%",parsedBody)
-          resolve(parsedBody);
-            // POST succeeded...
-        })
-        .catch(function (err) {
-          console.log("inside catch")
-          reject(err);
-            // POST failed...
-        });
-  })
-}
-
-exports.paymentviapaypal = async function(req,amount) {
-  // var amount = parseInt(amount);
-  return new Promise(function (resolve, reject) {
-    var options = {
-      method: "POST",
-      uri: "http://localhost:3030/payment",
-      body: {
-          "gateway":"paypal",
-          "intent": "sale",
-            "payer": {
-              "payment_method": "credit_card",
-              "funding_instruments": [{
-                "payment_card": {
-                  "type": req.body.cardtype,
-                  "number": req.body.cardnumber,
-                  "expire_month":parseInt(req.body.expire_month),
-                  "expire_year": parseInt(req.body.expire_year),
-                  "cvv2": parseInt(req.body.cvc),
-                  "billing_country": "US",
-                }
-              }]
-            },
-            "transactions": [{
-              "amount": {
-                "total": amount,
-                "currency": "USD",
-                "details": {
-                  "subtotal": amount,
-                  "tax": "0",
-                  "shipping": "0"
-                }
-              },
-              "description": "This is the payment transaction description"
-            }]
-        },
-      json: true, // Automatically stringifies the body to JSON
-      headers: {
-        "X-api-token" : "",
-         "x-api-login" :  ""
-      }
-    };
-    console.log("########################",options);
-    rp(options)
-        .then(function (parsedBody) {
-          console.log("inside then%%%%%%%%%%%",parsedBody)
-          resolve(parsedBody);
-            // POST succeeded...
-        })
-        .catch(function (err) {
-          console.log("inside catch")
-          reject(err);
-            // POST failed...
-        });
-  })
-}
 
 exports.postpayment = async function(req, name, appname){
   console.log("inside payment",name,appname);

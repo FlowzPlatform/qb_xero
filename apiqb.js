@@ -57,7 +57,6 @@ router.get('/payment',async function (req, res) {
   });
 })
 
-
 /////////////////##########All Filtering api call
 router.get('/invoice/totalamount/gt/:amount', async function(req,res) {
   var amount = req.params.amount

@@ -325,51 +325,51 @@ router.get('/payment/:id/:cname/:value', function(req,res) {
 	res.render('QBaddpayment',{id:id,cname:cname,value:value});
 })
 
-router.post('/paymentviagateway', async function(req,res) {
-	console.log("Inside get payment");
-	var name= req.session.name;
-	var app = req.session.app;
-  if (name == undefined || app == undefined) {
-    res.render('quickbook',{err:'Session Expired'});
-  }
-	var id = req.body.id;
-	var amount = req.body.amount;
-	var gateway = req.body.gateway;
-	console.log("amount",amount,"gateway",gateway);
+// router.post('/paymentviagateway', async function(req,res) {
+// 	console.log("Inside get payment");
+// 	var name= req.session.name;
+// 	var app = req.session.app;
+//   if (name == undefined || app == undefined) {
+//     res.render('quickbook',{err:'Session Expired'});
+//   }
+// 	var id = req.body.id;
+// 	var amount = req.body.amount;
+// 	var gateway = req.body.gateway;
+// 	console.log("amount",amount,"gateway",gateway);
 
-	if (gateway == 'Stripe') {
-		var payment = await qbfun.paymentviastripe(req,amount);
-		console.log("################",payment.status);
-		var status = payment.status;
-	}
-	else if (gateway == 'AuthorizeDotNet') {
-		var payment = await qbfun.paymentviaauthdotnet(req,amount);
-		console.log("###################",payment.messages.resultCode);
-		var status = payment.messages.resultCode
-	}
-	else if (gateway == 'PayPal') {
-		var payment = await qbfun.paymentviapaypal(req,amount);
-		console.log("###################",payment.state);
-		var status = payment.state
-	}
-	else {
-		console.log('Inside else');
-    var err = 'Payment gateway is not provided';
-		// res.render('quickbook',{err:'Payment gateway is not provided'})
-	}
+// 	if (gateway == 'Stripe') {
+// 		var payment = await qbfun.paymentviastripe(req,amount);
+// 		console.log("################",payment.status);
+// 		var status = payment.status;
+// 	}
+// 	else if (gateway == 'AuthorizeDotNet') {
+// 		var payment = await qbfun.paymentviaauthdotnet(req,amount);
+// 		console.log("###################",payment.messages.resultCode);
+// 		var status = payment.messages.resultCode
+// 	}
+// 	else if (gateway == 'PayPal') {
+// 		var payment = await qbfun.paymentviapaypal(req,amount);
+// 		console.log("###################",payment.state);
+// 		var status = payment.state
+// 	}
+// 	else {
+// 		console.log('Inside else');
+//     var err = 'Payment gateway is not provided';
+// 		// res.render('quickbook',{err:'Payment gateway is not provided'})
+// 	}
 
-	if(status == 'succeeded' || status == 'Ok' || status == 'created') {
-		console.log("@@@@@@@@");
-		var payment = await qbfun.postpayment(req,name,app);
-    if(payment ==  err) {
+// 	if(status == 'succeeded' || status == 'Ok' || status == 'created') {
+// 		console.log("@@@@@@@@");
+// 		var payment = await qbfun.postpayment(req,name,app);
+//     if(payment ==  err) {
 
-    }
-		res.redirect('/qb/invoice/id/'+id+'?name='+name+'&app='+app);
-	}
-	else {
-		res.render('quickbook',{err:'There is an error while connecting with quickbook payment'})
-	}
-})
+//     }
+// 		res.redirect('/qb/invoice/id/'+id+'?name='+name+'&app='+app);
+// 	}
+// 	else {
+// 		res.render('quickbook',{err:'There is an error while connecting with quickbook payment'})
+// 	}
+// })
 
 router.get('/paymentdetail/:invoiceid',async function(req,res) {
 		payment = [];
@@ -588,7 +588,7 @@ router.get('/list', async function(req,res) {
 })
 
 //##########################Send invoice as Email
-router.get('/invoice/send/:id', async function(req,res) {
+router.get('/invoice/sendEmail/:id', async function(req,res) {
     var email = await qbfun.sendEmail(req,req.query.name,req.query.app,req.params.id)
     console.log("Email response",email);
     res.json({emailresponse:email});
